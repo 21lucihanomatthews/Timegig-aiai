@@ -121,6 +121,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
       };
 
       try {
+        console.log('Registering user:', user.uid, 'with referral code:', referralCode);
         await setDoc(doc(db, 'users', user.uid), {
           ...userProfile,
           createdAtServer: serverTimestamp(),

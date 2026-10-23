@@ -71,6 +71,7 @@ export const TenantDashboard: React.FC<TenantDashboardProps> = ({
       snapshot.forEach((doc) => {
         users.push({ uid: doc.id, ...doc.data() } as UserProfile);
       });
+      console.log('All users fetched:', users);
       setAllUsers(users);
     });
 
@@ -119,6 +120,8 @@ export const TenantDashboard: React.FC<TenantDashboardProps> = ({
   };
 
   if (!isOpen) return null;
+
+  console.log('Dashboard currentUser:', currentUser);
 
   const stats = {
     total: allUsers.length,
