@@ -108,9 +108,9 @@ export const TenantDashboard: React.FC<TenantDashboardProps> = ({
 
   return (
     <div
-      className="fixed inset-0 w-full h-full bg-neutral-100/40 backdrop-blur-3xl z-[10000] flex flex-col pointer-events-auto animate-in fade-in duration-150 overflow-hidden"
+      className="fixed inset-0 w-full h-full bg-white/20 backdrop-blur-3xl z-[10000] flex flex-col pointer-events-auto animate-in fade-in duration-150 overflow-hidden"
     >
-      <header className="px-5 py-4 border-b border-neutral-200/50 flex items-center justify-between bg-white/60 backdrop-blur-md shrink-0">
+      <header className="px-5 py-4 border-b border-neutral-200/50 flex items-center justify-between bg-white/40 backdrop-blur-md shrink-0">
         <div className="flex items-center gap-3">
           <button
             onClick={() => selectedUser ? setSelectedUser(null) : onClose()}

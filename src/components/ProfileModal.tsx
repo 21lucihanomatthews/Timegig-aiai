@@ -432,9 +432,9 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
   const userEmail = currentUser?.email || userProfile?.email || 'user@example.com';
 
   return (
-    <div className="fixed inset-0 w-full h-full bg-neutral-100/40 backdrop-blur-3xl z-[10000] flex flex-col overflow-hidden animate-in fade-in duration-200">
+    <div className="fixed inset-0 w-full h-full bg-white/20 backdrop-blur-3xl z-[10000] flex flex-col overflow-hidden animate-in fade-in duration-200">
       {/* Header */}
-      <header className="px-5 py-4 border-b border-neutral-200/50 flex items-center justify-between bg-white/60 backdrop-blur-md shrink-0 shadow-sm z-10">
+      <header className="px-5 py-4 border-b border-neutral-200/50 flex items-center justify-between bg-white/40 backdrop-blur-md shrink-0 shadow-sm z-10">
         <div className="flex items-center gap-3">
           <button
             onClick={onClose}
