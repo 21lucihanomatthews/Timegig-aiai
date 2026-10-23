@@ -25,6 +25,7 @@ interface TenantDashboardProps {
   isOpen: boolean;
   onClose: () => void;
   currentUser: any;
+  userProfile: UserProfile | null;
 }
 
 type TenantTab = 'overview' | 'verification' | 'referrals' | 'tenant-pop' | 'user-pop';
@@ -32,7 +33,8 @@ type TenantTab = 'overview' | 'verification' | 'referrals' | 'tenant-pop' | 'use
 export const TenantDashboard: React.FC<TenantDashboardProps> = ({
   isOpen,
   onClose,
-  currentUser
+  currentUser,
+  userProfile
 }) => {
   const [activeTab, setActiveTab] = useState<TenantTab>('overview');
   const [pendingUsers, setPendingUsers] = useState<UserProfile[]>([]);
@@ -45,12 +47,12 @@ export const TenantDashboard: React.FC<TenantDashboardProps> = ({
   const [zoomedImage, setZoomedImage] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
 
+  const isAdmin = currentUser?.email === '21lucihanomatthews@gmail.com';
+  const isTenant = userProfile?.subscriptionPlan === 'tenant';
+
   useEffect(() => {
     if (!isOpen) return;
 
-    const isAdmin = currentUser?.email === '21lucihanomatthews@gmail.com';
-    const isTenant = currentUser?.subscriptionPlan === 'tenant';
-    
     // Listen for users with 'pending' verification status
     let pendingQuery;
     if (isAdmin) {
@@ -277,25 +279,25 @@ export const TenantDashboard: React.FC<TenantDashboardProps> = ({
                           <button
                             key={user.uid}
                             onClick={() => setSelectedUser(user)}
-                            className="w-full bg-white/80 border border-neutral-200 rounded-2xl p-3 flex items-center justify-between hover:border-emerald-500 hover:bg-white transition-all group shadow-sm active:scale-[0.98]"
+                            className="w-full bg-white/80 border border-neutral-200 rounded-xl p-2.5 flex items-center justify-between hover:border-emerald-500 hover:bg-white transition-all group shadow-2xs active:scale-[0.98]"
                           >
-                            <div className="flex items-center gap-3">
-                              <div className="w-12 h-12 rounded-xl overflow-hidden bg-neutral-100 border border-neutral-200 shrink-0 shadow-inner">
+                            <div className="flex items-center gap-2.5">
+                              <div className="w-9 h-9 rounded-lg overflow-hidden bg-neutral-100 border border-neutral-200 shrink-0 shadow-inner">
                                 {user.selfieUrl || user.profilePictureUrl ? (
                                   <img src={user.selfieUrl || user.profilePictureUrl} alt="" className="w-full h-full object-cover" />
                                 ) : (
                                   <div className="w-full h-full flex items-center justify-center">
-                                    <User className="w-7 h-7 text-neutral-300" />
+                                    <User className="w-5 h-5 text-neutral-300" />
                                   </div>
                                 )}
                               </div>
                               <div className="text-left">
-                                <div className="text-xs font-black text-neutral-900 uppercase tracking-tight">
+                                <div className="text-xs font-black text-neutral-900 uppercase tracking-tight leading-none mb-0.5">
                                   {user.firstName} {user.surname}
                                 </div>
-                                <div className="text-[10px] text-neutral-400 font-medium mb-1">{user.email}</div>
-                                <div className="flex items-center gap-2">
-                                  <span className={`px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-wider ${
+                                <div className="text-[10px] text-neutral-400 font-medium mb-0.5">{user.email}</div>
+                                <div className="flex items-center gap-1.5">
+                                  <span className={`px-1.5 py-0.2 rounded text-[8px] font-black uppercase tracking-wider ${
                                     user.requestedPlan === 'tenant' 
                                     ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' 
                                     : 'bg-sky-100 text-sky-700 border border-sky-200'
@@ -305,9 +307,9 @@ export const TenantDashboard: React.FC<TenantDashboardProps> = ({
                                 </div>
                               </div>
                             </div>
-                            <div className="flex items-center gap-2">
-                              <span className="text-[10px] font-bold text-neutral-400 uppercase">Review</span>
-                              <ChevronRight className="w-5 h-5 text-neutral-300 group-hover:text-emerald-500 group-hover:translate-x-1 transition-all" />
+                            <div className="flex items-center gap-1">
+                              <span className="text-[9px] font-bold text-neutral-400 uppercase">Review</span>
+                              <ChevronRight className="w-4 h-4 text-neutral-300 group-hover:text-emerald-500 group-hover:translate-x-0.5 transition-all" />
                             </div>
                           </button>
                         ))
@@ -448,23 +450,31 @@ export const TenantDashboard: React.FC<TenantDashboardProps> = ({
               {/* Referrals Tab */}
               {activeTab === 'referrals' && (
                 <div className="space-y-4">
-                  <div className="bg-white/80 border border-neutral-200 p-6 rounded-[2.5rem] shadow-sm mb-6">
-                    <h3 className="text-sm font-black uppercase tracking-widest text-neutral-900 mb-2">Referral Link</h3>
-                    <div className="flex items-center gap-3 bg-neutral-50 border border-neutral-200 p-4 rounded-2xl">
-                      <code className="flex-1 text-[10px] font-bold text-neutral-500 truncate">
-                        {`${window.location.origin}?ref=${currentUser.uid}`}
-                      </code>
-                      <button 
-                        onClick={() => {
-                          navigator.clipboard.writeText(`${window.location.origin}?ref=${currentUser.uid}`);
-                          alert('Referral link copied to clipboard!');
-                        }}
-                        className="px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-[10px] font-black uppercase hover:bg-emerald-500 transition-colors"
-                      >
-                        Copy
-                      </button>
+                  {isTenant ? (
+                    <div className="bg-white/80 border border-neutral-200 p-6 rounded-[2.5rem] shadow-sm mb-6">
+                      <h3 className="text-sm font-black uppercase tracking-widest text-neutral-900 mb-2">Referral Link</h3>
+                      <div className="flex items-center gap-3 bg-neutral-50 border border-neutral-200 p-4 rounded-2xl">
+                        <code className="flex-1 text-[10px] font-bold text-neutral-500 truncate">
+                          {`${window.location.origin}?ref=${currentUser.uid}`}
+                        </code>
+                        <button 
+                          onClick={() => {
+                            navigator.clipboard.writeText(`${window.location.origin}?ref=${currentUser.uid}`);
+                            alert('Referral link copied to clipboard!');
+                          }}
+                          className="px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-[10px] font-black uppercase hover:bg-emerald-500 transition-colors"
+                        >
+                          Copy
+                        </button>
+                      </div>
                     </div>
-                  </div>
+                  ) : (
+                    <div className="bg-neutral-100 p-6 rounded-[2.5rem] mb-6 text-center">
+                      <p className="text-xs font-bold text-neutral-500 uppercase tracking-widest">
+                        Referral link is only available for Tenant subscriptions.
+                      </p>
+                    </div>
+                  )}
 
                   <div className="space-y-3">
                     {referrals.length === 0 ? (

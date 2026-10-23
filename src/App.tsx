@@ -365,6 +365,7 @@ export default function App() {
         isOpen={activeBottomTab === 'tenant'}
         onClose={() => setActiveBottomTab(null)}
         currentUser={user}
+        userProfile={userProfile}
       />
 
       {/* 9. Gig Application / Details Modal */}

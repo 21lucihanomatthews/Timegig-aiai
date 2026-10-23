@@ -459,203 +459,229 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
               <p className="text-sm font-medium text-neutral-500">Loading your profile details...</p>
             </div>
           ) : !isEditing ? (
-            /* --- READ ONLY VIEW (LOCKED PROFILE) --- */
             <div className="space-y-6">
-              {/* --- PROFESSIONAL WORKER PASSPORT CARD --- */}
-              <div className="relative overflow-hidden bg-white rounded-3xl border border-neutral-200 shadow-xl flex flex-col md:flex-row items-stretch">
-                {/* ID Card Side Decoration */}
-                <div className="hidden md:block w-3 bg-sky-600 h-full absolute left-0 top-0 bottom-0" />
-                
-                {/* ID Content */}
-                <div className="flex-1 p-8 flex flex-col md:flex-row gap-8 relative z-10">
-                  {/* Left: Photo & Badge */}
-                  <div className="flex flex-col items-center shrink-0">
-                    <div className="relative">
-                      <div className="w-40 h-48 rounded-2xl overflow-hidden bg-sky-50 border-4 border-white shadow-lg ring-1 ring-neutral-200 flex items-center justify-center">
-                        {profilePictureUrl ? (
-                          <img src={profilePictureUrl} alt="Passport Photo" className="w-full h-full object-cover" />
-                        ) : (
-                          <User className="w-20 h-20 text-sky-200" />
-                        )}
-                      </div>
-                      <div className="absolute -bottom-3 -right-3 w-10 h-10 rounded-full bg-emerald-500 border-4 border-white flex items-center justify-center shadow-lg">
-                        <Shield className="w-5 h-5 text-white" />
-                      </div>
-                    </div>
-                    <div className="mt-6 flex flex-col items-center gap-1">
-                      <span className="text-[9px] font-black text-neutral-400 uppercase tracking-[0.2em]">Passport ID</span>
-                      <span className="text-xs font-mono font-bold text-neutral-900">
-                        WP-{(currentUser?.uid || '0000').substring(0, 8).toUpperCase()}
-                      </span>
-                    </div>
+              {userProfile?.verificationStatus === 'pending' && (
+                <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-center gap-3 animate-in fade-in">
+                  <Shield className="w-5 h-5 text-amber-600 shrink-0" />
+                  <div>
+                    <div className="text-xs font-black text-amber-900 uppercase">Profile Locked</div>
+                    <p className="text-[11px] text-amber-700 font-medium">Your profile has been submitted and is currently locked pending tenant verification.</p>
                   </div>
-
-                  {/* Right: Identity Details */}
-                  <div className="flex-1 space-y-5">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h3 className="text-[10px] font-black text-sky-600 uppercase tracking-widest mb-1">Worker Identification</h3>
-                        <h4 className="text-2xl font-black text-neutral-900 tracking-tight leading-none uppercase">
-                          {surname || '---'}, {firstName || '---'}
-                        </h4>
-                      </div>
-                      <div className="text-right">
-                        <span className="px-2 py-0.5 bg-neutral-900 text-white rounded text-[8px] font-black uppercase tracking-widest">RSA</span>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-y-4 gap-x-8 border-t border-neutral-100 pt-5">
-                      <div>
-                        <span className="text-[9px] font-bold text-neutral-400 uppercase tracking-wider block mb-0.5">Date of Birth</span>
-                        <span className="text-xs font-black text-neutral-800">{dateOfBirth || 'Not Set'}</span>
-                      </div>
-                      <div>
-                        <span className="text-[9px] font-bold text-neutral-400 uppercase tracking-wider block mb-0.5">Gender / Status</span>
-                        <span className="text-xs font-black text-neutral-800">Verified Professional</span>
-                      </div>
-                      <div>
-                        <span className="text-[9px] font-bold text-neutral-400 uppercase tracking-wider block mb-0.5">Contact Number</span>
-                        <span className="text-xs font-black text-neutral-800">{contactNumber || 'Not Set'}</span>
-                      </div>
-                      <div>
-                        <span className="text-[9px] font-bold text-neutral-400 uppercase tracking-wider block mb-0.5">Valid Thru</span>
-                        <div className="flex items-center gap-1.5">
-                          <span className={`text-xs font-black uppercase tracking-wider ${
-                            userProfile?.verificationStatus === 'approved' ? 'text-emerald-600' :
-                            userProfile?.verificationStatus === 'pending' ? 'text-amber-500' :
-                            userProfile?.verificationStatus === 'rejected' ? 'text-rose-600' :
-                            'text-neutral-400'
-                          }`}>
-                            {userProfile?.verificationStatus === 'approved' ? 'Active' :
-                             userProfile?.verificationStatus === 'pending' ? 'Pending' :
-                             userProfile?.verificationStatus === 'rejected' ? 'Rejected' :
-                             'Inactive'}
-                          </span>
-                          {userProfile?.verificationStatus === 'approved' && (
-                            <CheckCircle2 className="w-3 h-3 text-emerald-500" />
+                </div>
+              )}
+              {/* --- PROFESSIONAL WORKER PASSPORT CARD --- */}
+                <div className="relative overflow-hidden bg-white rounded-3xl border border-neutral-200 shadow-xl flex flex-col md:flex-row items-stretch">
+                  {/* ID Card Side Decoration */}
+                  <div className="hidden md:block w-3 bg-sky-600 h-full absolute left-0 top-0 bottom-0" />
+                  
+                  {/* ID Content */}
+                  <div className="flex-1 p-8 flex flex-col md:flex-row gap-8 relative z-10">
+                    {/* Left: Photo & Badge */}
+                    <div className="flex flex-col items-center shrink-0">
+                      <div className="relative">
+                        <div className="w-40 h-48 rounded-2xl overflow-hidden bg-sky-50 border-4 border-white shadow-lg ring-1 ring-neutral-200 flex items-center justify-center">
+                          {profilePictureUrl ? (
+                            <img src={profilePictureUrl} alt="Passport Photo" className="w-full h-full object-cover" />
+                          ) : (
+                            <User className="w-20 h-20 text-sky-200" />
                           )}
                         </div>
+                        <div className="absolute -bottom-3 -right-3 w-10 h-10 rounded-full bg-emerald-500 border-4 border-white flex items-center justify-center shadow-lg">
+                          <Shield className="w-5 h-5 text-white" />
+                        </div>
                       </div>
-                    </div>
-
-                    {userProfile?.verificationStatus === 'rejected' && userProfile.rejectionReason && (
-                      <div className="mt-2 p-2 bg-rose-50 border border-rose-100 rounded-xl flex items-start gap-2 animate-in fade-in">
-                        <AlertCircle className="w-3 h-3 text-rose-500 shrink-0 mt-0.5" />
-                        <p className="text-[9px] font-bold text-rose-700 leading-tight">
-                          Rejection Reason: {userProfile.rejectionReason}
-                        </p>
-                      </div>
-                    )}
-
-                    <div className="pt-4 flex flex-wrap gap-1.5">
-                      {trades.slice(0, 3).map((trade, i) => (
-                        <span key={i} className="px-2 py-0.5 bg-sky-50 text-sky-700 rounded text-[9px] font-bold uppercase border border-sky-100">
-                          {trade}
+                      <div className="mt-6 flex flex-col items-center gap-1">
+                        <span className="text-[9px] font-black text-neutral-400 uppercase tracking-[0.2em]">Passport ID</span>
+                        <span className="text-xs font-mono font-bold text-neutral-900">
+                          WP-{(currentUser?.uid || '0000').substring(0, 8).toUpperCase()}
                         </span>
-                      ))}
-                      {trades.length > 3 && (
-                        <span className="px-2 py-0.5 bg-neutral-50 text-neutral-500 rounded text-[9px] font-bold uppercase">
-                          +{trades.length - 3} More
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Card Background Pattern (Faded) */}
-                <div className="absolute inset-0 pointer-events-none opacity-[0.03] select-none overflow-hidden flex items-center justify-center">
-                   <div className="text-[12rem] font-black rotate-12 -translate-y-12">WP</div>
-                </div>
-              </div>
-
-              {/* Quick Info Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-white rounded-2xl p-5 border border-neutral-200 shadow-sm">
-                  <div className="flex items-center gap-2 mb-3 text-neutral-900">
-                    <Mail className="w-4 h-4 text-sky-600" />
-                    <span className="text-xs font-bold uppercase tracking-wider">Registered Email</span>
-                  </div>
-                  <p className="text-xs font-bold text-neutral-700">{userEmail}</p>
-                </div>
-                <div className="bg-white rounded-2xl p-5 border border-neutral-200 shadow-sm">
-                  <div className="flex items-center gap-2 mb-3 text-neutral-900">
-                    <MapPin className="w-4 h-4 text-sky-600" />
-                    <span className="text-xs font-bold uppercase tracking-wider">Primary Location</span>
-                  </div>
-                  <p className="text-xs font-bold text-neutral-700 truncate" title={location.address}>
-                    {location.address || 'Not set'}
-                  </p>
-                </div>
-              </div>
-
-              {/* Work Experience Read View */}
-              <div className="bg-white rounded-2xl p-6 border border-neutral-200 shadow-sm">
-                <div className="flex items-center gap-2 mb-6 text-neutral-900">
-                  <Briefcase className="w-4 h-4 text-sky-600" />
-                  <span className="text-xs font-bold uppercase tracking-wider">Work Experience</span>
-                </div>
-                <div className="space-y-6">
-                  {experience.length > 0 ? experience.map((exp, i) => (
-                    <div key={i} className="relative pl-6 border-l-2 border-neutral-100 pb-2 last:pb-0">
-                      <div className="absolute left-[-9px] top-0 w-4 h-4 rounded-full bg-sky-100 border-2 border-white shadow-sm" />
-                      <div className="flex justify-between items-start mb-1">
-                        <h4 className="text-sm font-black text-black">{exp.role}</h4>
-                        <span className="text-[10px] font-bold text-black uppercase">{exp.period}</span>
                       </div>
-                      <p className="text-xs font-bold text-black mb-2">{exp.company}</p>
-                      <p className="text-xs text-black leading-relaxed">{exp.description}</p>
                     </div>
-                  )) : (
-                    <p className="text-xs text-neutral-400 italic text-center">No experience added yet.</p>
-                  )}
-                </div>
-              </div>
 
-              {/* References Read View */}
-              <div className="bg-white rounded-2xl p-6 border border-neutral-200 shadow-sm">
-                <div className="flex items-center gap-2 mb-6 text-neutral-900">
-                  <Star className="w-4 h-4 text-sky-600" />
-                  <span className="text-xs font-bold uppercase tracking-wider">References</span>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {references.length > 0 ? references.map((ref, i) => (
-                    <div key={i} className="p-4 bg-neutral-50 rounded-2xl border border-neutral-100">
-                      <div className="flex items-center gap-3 mb-2">
-                        <div className="w-8 h-8 rounded-full bg-white text-neutral-400 flex items-center justify-center border border-neutral-200">
-                          <Users className="w-4 h-4" />
+                    {/* Right: Identity Details */}
+                    <div className="flex-1 space-y-5">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h3 className="text-[10px] font-black text-sky-600 uppercase tracking-widest mb-1">Worker Identification</h3>
+                          <h4 className="text-2xl font-black text-neutral-900 tracking-tight leading-none uppercase">
+                            {surname || '---'}, {firstName || '---'}
+                          </h4>
+                        </div>
+                        <div className="text-right">
+                          <span className="px-2 py-0.5 bg-neutral-900 text-white rounded text-[8px] font-black uppercase tracking-widest">RSA</span>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-y-4 gap-x-8 border-t border-neutral-100 pt-5">
+                        <div>
+                          <span className="text-[9px] font-bold text-neutral-400 uppercase tracking-wider block mb-0.5">Date of Birth</span>
+                          <span className="text-xs font-black text-neutral-800">{dateOfBirth || 'Not Set'}</span>
                         </div>
                         <div>
-                          <p className="text-xs font-black text-neutral-900">{ref.name}</p>
-                          <p className="text-[10px] font-bold text-sky-600 uppercase tracking-tighter">{ref.relation}</p>
+                          <span className="text-[9px] font-bold text-neutral-400 uppercase tracking-wider block mb-0.5">Gender / Status</span>
+                          <span className="text-xs font-black text-neutral-800">Verified Professional</span>
+                        </div>
+                        <div>
+                          <span className="text-[9px] font-bold text-neutral-400 uppercase tracking-wider block mb-0.5">Contact Number</span>
+                          <span className="text-xs font-black text-neutral-800">{contactNumber || 'Not Set'}</span>
+                        </div>
+                        <div>
+                          <span className="text-[9px] font-bold text-neutral-400 uppercase tracking-wider block mb-0.5">Valid Thru</span>
+                          <div className="flex items-center gap-1.5">
+                            <span className={`text-xs font-black uppercase tracking-wider ${
+                              userProfile?.verificationStatus === 'approved' ? 'text-emerald-600' :
+                              userProfile?.verificationStatus === 'pending' ? 'text-amber-500' :
+                              userProfile?.verificationStatus === 'rejected' ? 'text-rose-600' :
+                              'text-neutral-400'
+                            }`}>
+                              {userProfile?.verificationStatus === 'approved' ? 'Active' :
+                              userProfile?.verificationStatus === 'pending' ? 'Pending' :
+                              userProfile?.verificationStatus === 'rejected' ? 'Rejected' :
+                              'Inactive'}
+                            </span>
+                            {userProfile?.verificationStatus === 'approved' && (
+                              <CheckCircle2 className="w-3 h-3 text-emerald-500" />
+                            )}
+                          </div>
                         </div>
                       </div>
-                      <p className="text-xs font-mono text-neutral-500">{ref.contact}</p>
+
+                      {userProfile?.verificationStatus === 'rejected' && userProfile.rejectionReason && (
+                        <div className="mt-2 p-2 bg-rose-50 border border-rose-100 rounded-xl flex items-start gap-2 animate-in fade-in">
+                          <AlertCircle className="w-3 h-3 text-rose-500 shrink-0 mt-0.5" />
+                          <p className="text-[9px] font-bold text-rose-700 leading-tight">
+                            Rejection Reason: {userProfile.rejectionReason}
+                          </p>
+                        </div>
+                      )}
+
+                      <div className="pt-4 flex flex-wrap gap-1.5">
+                        {trades.slice(0, 3).map((trade, i) => (
+                          <span key={i} className="px-2 py-0.5 bg-sky-50 text-sky-700 rounded text-[9px] font-bold uppercase border border-sky-100">
+                            {trade}
+                          </span>
+                        ))}
+                        {trades.length > 3 && (
+                          <span className="px-2 py-0.5 bg-neutral-50 text-neutral-500 rounded text-[9px] font-bold uppercase">
+                            +{trades.length - 3} More
+                          </span>
+                        )}
+                      </div>
                     </div>
-                  )) : (
-                    <p className="text-xs text-neutral-400 italic col-span-2 text-center">No references provided.</p>
-                  )}
+                  </div>
+
+                  {/* Card Background Pattern (Faded) */}
+                  <div className="absolute inset-0 pointer-events-none opacity-[0.03] select-none overflow-hidden flex items-center justify-center">
+                    <div className="text-[12rem] font-black rotate-12 -translate-y-12">WP</div>
+                  </div>
+                </div>
+
+                {/* Quick Info Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-white rounded-2xl p-5 border border-neutral-200 shadow-sm">
+                    <div className="flex items-center gap-2 mb-3 text-neutral-900">
+                      <Mail className="w-4 h-4 text-sky-600" />
+                      <span className="text-xs font-bold uppercase tracking-wider">Registered Email</span>
+                    </div>
+                    <p className="text-xs font-bold text-neutral-700">{userEmail}</p>
+                  </div>
+                  <div className="bg-white rounded-2xl p-5 border border-neutral-200 shadow-sm">
+                    <div className="flex items-center gap-2 mb-3 text-neutral-900">
+                      <MapPin className="w-4 h-4 text-sky-600" />
+                      <span className="text-xs font-bold uppercase tracking-wider">Primary Location</span>
+                    </div>
+                    <p className="text-xs font-bold text-neutral-700 truncate" title={location.address}>
+                      {location.address || 'Not set'}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Work Experience Read View */}
+                <div className="bg-white rounded-2xl p-6 border border-neutral-200 shadow-sm">
+                  <div className="flex items-center gap-2 mb-6 text-neutral-900">
+                    <Briefcase className="w-4 h-4 text-sky-600" />
+                    <span className="text-xs font-bold uppercase tracking-wider">Work Experience</span>
+                  </div>
+                  <div className="space-y-6">
+                    {experience.length > 0 ? experience.map((exp, i) => (
+                      <div key={i} className="relative pl-6 border-l-2 border-neutral-100 pb-2 last:pb-0">
+                        <div className="absolute left-[-9px] top-0 w-4 h-4 rounded-full bg-sky-100 border-2 border-white shadow-sm" />
+                        <div className="flex justify-between items-start mb-1">
+                          <h4 className="text-sm font-black text-black">{exp.role}</h4>
+                          <span className="text-[10px] font-bold text-black uppercase">{exp.period}</span>
+                        </div>
+                        <p className="text-xs font-bold text-black mb-2">{exp.company}</p>
+                        <p className="text-xs text-black leading-relaxed">{exp.description}</p>
+                      </div>
+                    )) : (
+                      <p className="text-xs text-neutral-400 italic text-center">No experience added yet.</p>
+                    )}
+                  </div>
+                </div>
+
+                {/* References Read View */}
+                <div className="bg-white rounded-2xl p-6 border border-neutral-200 shadow-sm">
+                  <div className="flex items-center gap-2 mb-6 text-neutral-900">
+                    <Star className="w-4 h-4 text-sky-600" />
+                    <span className="text-xs font-bold uppercase tracking-wider">References</span>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {references.length > 0 ? references.map((ref, i) => (
+                      <div key={i} className="p-4 bg-neutral-50 rounded-2xl border border-neutral-100">
+                        <div className="flex items-center gap-3 mb-2">
+                          <div className="w-8 h-8 rounded-full bg-white text-neutral-400 flex items-center justify-center border border-neutral-200">
+                            <Users className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <p className="text-xs font-black text-neutral-900">{ref.name}</p>
+                            <p className="text-[10px] font-bold text-sky-600 uppercase tracking-tighter">{ref.relation}</p>
+                          </div>
+                        </div>
+                        <p className="text-xs font-mono text-neutral-500">{ref.contact}</p>
+                      </div>
+                    )) : (
+                      <p className="text-xs text-neutral-400 italic col-span-2 text-center">No references provided.</p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex flex-col gap-3 pt-4 pb-10">
+                  <button
+                    onClick={() => {
+                      if (userProfile?.verificationStatus !== 'pending') {
+                        setIsEditing(true);
+                      }
+                    }}
+                    disabled={userProfile?.verificationStatus === 'pending'}
+                    className={`w-full py-4 border-2 rounded-2xl font-bold transition-all flex items-center justify-center gap-2 ${
+                      userProfile?.verificationStatus === 'pending'
+                        ? 'bg-neutral-100 border-neutral-300 text-neutral-400 cursor-not-allowed opacity-80'
+                        : 'bg-white border-sky-600 text-sky-600 hover:bg-sky-50'
+                    }`}
+                  >
+                    {userProfile?.verificationStatus === 'pending' ? (
+                      <>
+                        <Shield className="w-5 h-5 text-amber-500" />
+                        Profile Locked (Pending Tenant Verification)
+                      </>
+                    ) : (
+                      <>
+                        <Edit3 className="w-5 h-5" />
+                        Edit Profile Passport
+                      </>
+                    )}
+                  </button>
+                  <button
+                    onClick={handleLogout}
+                    disabled={isLoggingOut}
+                    className="w-full py-4 border-2 border-rose-100 text-rose-600 hover:bg-rose-50 rounded-2xl font-bold transition-all flex items-center justify-center gap-2"
+                  >
+                    {isLoggingOut ? <Loader2 className="w-5 h-5 animate-spin" /> : <LogOut className="w-5 h-5" />}
+                    Sign Out of Account
+                  </button>
                 </div>
               </div>
-
-              {/* Actions */}
-              <div className="flex flex-col gap-3 pt-4 pb-10">
-                <button
-                  onClick={() => setIsEditing(true)}
-                  className="w-full py-4 bg-white border-2 border-sky-600 text-sky-600 hover:bg-sky-50 rounded-2xl font-bold transition-all flex items-center justify-center gap-2"
-                >
-                  <Edit3 className="w-5 h-5" />
-                  Edit Profile Passport
-                </button>
-                <button
-                  onClick={handleLogout}
-                  disabled={isLoggingOut}
-                  className="w-full py-4 border-2 border-rose-100 text-rose-600 hover:bg-rose-50 rounded-2xl font-bold transition-all flex items-center justify-center gap-2"
-                >
-                  {isLoggingOut ? <Loader2 className="w-5 h-5 animate-spin" /> : <LogOut className="w-5 h-5" />}
-                  Sign Out of Account
-                </button>
-              </div>
-            </div>
           ) : (
             /* --- EDIT FORM (UPDATING PROFILE) --- */
             <form onSubmit={handleSave} className="space-y-10 pb-20">
@@ -739,7 +765,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                       type="text"
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
-                      className="w-full px-5 py-3.5 bg-white border border-neutral-300 rounded-2xl focus:ring-2 focus:ring-sky-500 outline-none font-bold text-neutral-900"
+                      className="w-full px-5 py-3.5 bg-white border border-neutral-300 rounded-2xl focus:ring-2 focus:ring-sky-500 outline-none font-bold text-black"
                       required
                     />
                   </div>
@@ -749,7 +775,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                       type="text"
                       value={surname}
                       onChange={(e) => setSurname(e.target.value)}
-                      className="w-full px-5 py-3.5 bg-white border border-neutral-300 rounded-2xl focus:ring-2 focus:ring-sky-500 outline-none font-bold text-neutral-900"
+                      className="w-full px-5 py-3.5 bg-white border border-neutral-300 rounded-2xl focus:ring-2 focus:ring-sky-500 outline-none font-bold text-black"
                       required
                     />
                   </div>
@@ -759,7 +785,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                       type="date"
                       value={dateOfBirth}
                       onChange={(e) => setDateOfBirth(e.target.value)}
-                      className="w-full px-5 py-3.5 bg-white border border-neutral-300 rounded-2xl focus:ring-2 focus:ring-sky-500 outline-none font-bold text-neutral-900"
+                      className="w-full px-5 py-3.5 bg-white border border-neutral-300 rounded-2xl focus:ring-2 focus:ring-sky-500 outline-none font-bold text-black"
                       required
                     />
                   </div>
@@ -769,7 +795,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                       type="tel"
                       value={contactNumber}
                       onChange={(e) => setContactNumber(e.target.value)}
-                      className="w-full px-5 py-3.5 bg-white border border-neutral-300 rounded-2xl focus:ring-2 focus:ring-sky-500 outline-none font-bold text-neutral-900"
+                      className="w-full px-5 py-3.5 bg-white border border-neutral-300 rounded-2xl focus:ring-2 focus:ring-sky-500 outline-none font-bold text-black"
                       placeholder="+27..."
                       required
                     />
@@ -818,7 +844,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                       type="text"
                       value={location.address}
                       onChange={(e) => setLocation({ ...location, address: e.target.value })}
-                      className="w-full pl-11 pr-5 py-3.5 bg-white border border-neutral-300 rounded-2xl focus:ring-2 focus:ring-sky-500 outline-none font-bold text-neutral-900"
+                      className="w-full pl-11 pr-5 py-3.5 bg-white border border-neutral-300 rounded-2xl focus:ring-2 focus:ring-sky-500 outline-none font-bold text-black"
                       placeholder="Street address, Suburb"
                       required
                     />
@@ -864,7 +890,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                         placeholder="Company / Employer"
                         value={exp.company}
                         onChange={(e) => updateExperience(i, 'company', e.target.value)}
-                        className="w-full px-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-sky-500"
+                        className="w-full px-4 py-2.5 bg-white border border-neutral-400 rounded-xl text-xs font-bold text-black outline-none focus:ring-2 focus:ring-sky-500 placeholder:text-neutral-500"
                         required
                       />
                       <input
@@ -872,7 +898,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                         placeholder="Role / Title"
                         value={exp.role}
                         onChange={(e) => updateExperience(i, 'role', e.target.value)}
-                        className="w-full px-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-sky-500"
+                        className="w-full px-4 py-2.5 bg-white border border-neutral-400 rounded-xl text-xs font-bold text-black outline-none focus:ring-2 focus:ring-sky-500 placeholder:text-neutral-500"
                         required
                       />
                       <input
@@ -880,7 +906,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                         placeholder="Period (e.g. 2020 - 2022)"
                         value={exp.period}
                         onChange={(e) => updateExperience(i, 'period', e.target.value)}
-                        className="w-full px-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-sky-500"
+                        className="w-full px-4 py-2.5 bg-white border border-neutral-300 rounded-xl text-xs font-bold text-black outline-none focus:ring-2 focus:ring-sky-500 placeholder:text-neutral-500"
                       />
                       <button
                         type="button"
@@ -894,7 +920,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                       placeholder="What did you do in this role?"
                       value={exp.description}
                       onChange={(e) => updateExperience(i, 'description', e.target.value)}
-                      className="w-full px-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-medium outline-none focus:ring-2 focus:ring-sky-500 h-20 resize-none"
+                      className="w-full px-4 py-3 bg-white border border-neutral-300 rounded-xl text-xs font-bold text-black outline-none focus:ring-2 focus:ring-sky-500 h-20 resize-none placeholder:text-neutral-500"
                     />
                   </div>
                 ))}
@@ -930,7 +956,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                         placeholder="Name"
                         value={ref.name}
                         onChange={(e) => updateReference(i, 'name', e.target.value)}
-                        className="w-full px-4 py-2 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-sky-500"
+                        className="w-full px-4 py-2 bg-white border border-neutral-300 rounded-xl text-xs font-bold text-black outline-none focus:ring-2 focus:ring-sky-500 placeholder:text-neutral-500"
                         required
                       />
                       <input
@@ -938,7 +964,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                         placeholder="Contact Number / Email"
                         value={ref.contact}
                         onChange={(e) => updateReference(i, 'contact', e.target.value)}
-                        className="w-full px-4 py-2 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-sky-500"
+                        className="w-full px-4 py-2 bg-white border border-neutral-300 rounded-xl text-xs font-bold text-black outline-none focus:ring-2 focus:ring-sky-500 placeholder:text-neutral-500"
                         required
                       />
                       <div className="flex items-center gap-2">
@@ -947,7 +973,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                           placeholder="Relation (e.g. Manager)"
                           value={ref.relation}
                           onChange={(e) => updateReference(i, 'relation', e.target.value)}
-                          className="flex-1 px-4 py-2 bg-neutral-50 border border-neutral-200 rounded-xl text-[10px] font-bold outline-none focus:ring-2 focus:ring-sky-500"
+                          className="flex-1 px-4 py-2 bg-white border border-neutral-300 rounded-xl text-[10px] font-bold text-black outline-none focus:ring-2 focus:ring-sky-500 placeholder:text-neutral-500"
                         />
                         <button
                           type="button"
@@ -1005,7 +1031,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                         updated[i].platform = e.target.value;
                         setSocialLinks(updated);
                       }}
-                      className="px-4 py-3 bg-white border border-neutral-300 rounded-2xl font-bold text-xs outline-none"
+                      className="px-4 py-3 bg-white border border-neutral-300 rounded-2xl font-bold text-xs text-black outline-none"
                     >
                       <option value="">Platform</option>
                       <option value="linkedin">LinkedIn</option>
@@ -1022,7 +1048,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                         updated[i].url = e.target.value;
                         setSocialLinks(updated);
                       }}
-                      className="flex-1 px-4 py-3 bg-white border border-neutral-300 rounded-2xl font-bold text-xs outline-none focus:ring-2 focus:ring-sky-500"
+                      className="flex-1 px-4 py-3 bg-white border border-neutral-300 rounded-2xl font-bold text-xs text-black outline-none focus:ring-2 focus:ring-sky-500 placeholder:text-neutral-500"
                       placeholder="URL..."
                     />
                     <button type="button" onClick={() => setSocialLinks(socialLinks.filter((_, idx) => idx !== i))} className="p-3 text-rose-500"><Trash2 className="w-4 h-4" /></button>
