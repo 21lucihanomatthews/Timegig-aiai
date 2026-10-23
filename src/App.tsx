@@ -376,10 +376,10 @@ export default function App() {
       {/* 9. Gig Application / Details Modal */}
       {isApplyModalOpen && selectedGig && (
         <div
-          className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4"
+          className="fixed inset-0 bg-neutral-900/20 backdrop-blur-3xl flex items-center justify-center p-4"
           style={{ zIndex: 10000 }}
         >
-          <div className="bg-white/80 backdrop-blur-xl rounded-2xl max-w-md w-full shadow-2xl overflow-hidden border border-neutral-200/50 animate-in fade-in zoom-in-95 duration-150">
+          <div className="bg-white/60 backdrop-blur-xl rounded-[2.5rem] max-w-md w-full shadow-2xl overflow-hidden border border-white/20 animate-in fade-in zoom-in-95 duration-150">
             <div className="p-5 border-b border-neutral-100/50 flex items-start justify-between bg-white/30 backdrop-blur-md">
               <div>
                 <span className="text-[10px] font-bold text-sky-600 uppercase tracking-wider">

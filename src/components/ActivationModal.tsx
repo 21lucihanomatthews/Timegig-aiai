@@ -356,7 +356,7 @@ export const ActivationModal: React.FC<ActivationModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 w-full h-full bg-white/70 backdrop-blur-xl z-[10000] flex flex-col pointer-events-auto animate-in fade-in duration-150 overflow-hidden"
+      className="fixed inset-0 w-full h-full bg-neutral-100/40 backdrop-blur-3xl z-[10000] flex flex-col pointer-events-auto animate-in fade-in duration-150 overflow-hidden"
       style={{ zIndex: 10000 }}
     >
       {/* 1. Full Screen Top Navigation Header */}
