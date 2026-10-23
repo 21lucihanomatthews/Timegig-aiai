@@ -17,6 +17,9 @@ import {
   AlertCircle,
   Loader2,
   Landmark,
+  Lock,
+  Clock,
+  ShieldCheck,
 } from 'lucide-react';
 
 import { User as FirebaseUser } from 'firebase/auth';
@@ -410,13 +413,65 @@ export const ActivationModal: React.FC<ActivationModalProps> = ({
 
       {/* 2. Full Screen Scrollable Body Content */}
       <main className="flex-1 overflow-y-auto p-5 sm:p-8 flex flex-col items-center">
-        {userProfile && userProfile.referralVerified && userProfile.subscriptionEnd && new Date(userProfile.subscriptionEnd).getTime() > Date.now() ? (
-          <div className="my-auto py-12 text-center text-neutral-500">
-            <div className="w-20 h-20 rounded-full bg-neutral-100 flex items-center justify-center mx-auto mb-4">
-              <CheckCircle2 className="w-10 h-10 text-emerald-600" />
+        {userProfile && userProfile.subscriptionEnd && new Date(userProfile.subscriptionEnd).getTime() > Date.now() && (userProfile.verificationStatus === 'approved' || userProfile.referralVerified) ? (
+          <div className="my-auto py-8 text-center max-w-sm mx-auto space-y-5 animate-in fade-in zoom-in-95 duration-200">
+            <div className="relative inline-block">
+              <div className="w-24 h-24 rounded-3xl bg-emerald-50 border-2 border-emerald-200 flex items-center justify-center mx-auto shadow-xl shadow-emerald-500/10">
+                <Lock className="w-10 h-10 text-emerald-600" />
+              </div>
+              <div className="absolute -bottom-2 -right-2 bg-emerald-500 text-white p-2 rounded-full border-2 border-white shadow-lg">
+                <CheckCircle2 className="w-5 h-5" />
+              </div>
             </div>
-            <h3 className="text-lg font-bold text-neutral-900">Account Already Active</h3>
-            <p className="text-xs mt-2">Your account is verified and your subscription is active until {new Date(userProfile.subscriptionEnd).toLocaleDateString()}.</p>
+
+            <div className="space-y-1.5">
+              <span className="text-[10px] font-black uppercase tracking-widest text-emerald-700 bg-emerald-100/80 px-3 py-1 rounded-full border border-emerald-200">
+                Activation Locked · Active Subscription
+              </span>
+              <h3 className="text-xl font-black text-neutral-900 pt-2">
+                Subscription Currently Active
+              </h3>
+              <p className="text-xs text-neutral-500 leading-relaxed max-w-xs mx-auto">
+                Your account activation is locked because you currently have an active plan.
+                It will automatically unlock for renewal when your subscription expires.
+              </p>
+            </div>
+
+            <div className="bg-white border border-neutral-200 rounded-2xl p-4.5 space-y-3 text-left shadow-xs">
+              <div className="flex items-center justify-between border-b border-neutral-100 pb-2.5">
+                <span className="text-xs font-medium text-neutral-500">Plan Type:</span>
+                <span className="text-xs font-black text-neutral-900 uppercase">
+                  {userProfile?.subscriptionPlan === 'tenant' ? 'Tenant Sub (R299,99/m)' : 'User Sub (R29,99/m)'}
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between border-b border-neutral-100 pb-2.5">
+                <span className="text-xs font-medium text-neutral-500">Subscription Status:</span>
+                <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md flex items-center gap-1">
+                  <ShieldCheck className="w-3.5 h-3.5" /> Verified
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between border-b border-neutral-100 pb-2.5">
+                <span className="text-xs font-medium text-neutral-500">Expiration Date:</span>
+                <span className="text-xs font-mono font-bold text-neutral-900">
+                  {new Date(userProfile.subscriptionEnd).toLocaleDateString('en-ZA', { year: 'numeric', month: 'short', day: 'numeric' })}
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between pt-0.5">
+                <span className="text-xs font-medium text-neutral-500">Time Remaining:</span>
+                <span className="text-xs font-mono font-black text-sky-700 bg-sky-50 px-2 py-0.5 rounded-md flex items-center gap-1">
+                  <Clock className="w-3.5 h-3.5" />
+                  {Math.max(0, Math.ceil((new Date(userProfile.subscriptionEnd).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))} days left
+                </span>
+              </div>
+            </div>
+
+            <div className="p-3 bg-amber-50 border border-amber-200/80 rounded-2xl text-[11px] text-amber-800 leading-snug">
+              <span className="font-bold">Next Renewal:</span> Activation will automatically open on{' '}
+              <span className="font-mono font-bold">{new Date(userProfile.subscriptionEnd).toLocaleDateString('en-ZA')}</span> when this subscription ends.
+            </div>
           </div>
         ) : (
         <div className="max-w-md w-full mx-auto flex-1 flex flex-col">

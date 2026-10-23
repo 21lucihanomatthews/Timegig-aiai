@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { ShieldCheck, User, Building2 } from 'lucide-react';
+import { ShieldCheck, User, Building2, Lock } from 'lucide-react';
 import { UserProfile } from '../types';
 
 interface BottomMenuBarProps {
@@ -19,7 +19,11 @@ export const BottomMenuBar: React.FC<BottomMenuBarProps> = ({
   onSelectTab,
   userProfile,
 }) => {
-  const isTenantUser = userProfile?.subscriptionPlan === 'tenant';
+  const isSubActive = Boolean(
+    userProfile?.subscriptionEnd &&
+    new Date(userProfile.subscriptionEnd).getTime() > Date.now() &&
+    (userProfile?.verificationStatus === 'approved' || userProfile?.referralVerified)
+  );
 
   return (
     <div
@@ -39,7 +43,7 @@ export const BottomMenuBar: React.FC<BottomMenuBarProps> = ({
               ? 'text-sky-600'
               : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-50'
           }`}
-          title="Activation"
+          title={isSubActive ? "Activation (Locked - Active Plan)" : "Activation"}
           aria-label="Activation"
         >
           <div className="relative flex items-center justify-center">
@@ -56,15 +60,21 @@ export const BottomMenuBar: React.FC<BottomMenuBarProps> = ({
                 }`}
               />
             </div>
+            {isSubActive && (
+              <span className="absolute -top-1 -right-1 bg-emerald-500 text-white p-0.5 rounded-full border border-white shadow-xs">
+                <Lock className="w-2.5 h-2.5 stroke-[3]" />
+              </span>
+            )}
           </div>
           <span
-            className={`text-[11px] sm:text-xs mt-0.5 tracking-tight transition-colors ${
+            className={`text-[11px] sm:text-xs mt-0.5 tracking-tight transition-colors flex items-center gap-1 ${
               activeTab === 'activation'
                 ? 'font-bold text-sky-700'
                 : 'font-medium text-neutral-600 group-hover:text-neutral-900'
             }`}
           >
-            Activation
+            <span>Activation</span>
+            {isSubActive && <span className="text-[9px] font-black uppercase text-emerald-600">(Locked)</span>}
           </span>
         </button>
 
