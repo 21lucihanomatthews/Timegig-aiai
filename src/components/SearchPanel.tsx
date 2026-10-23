@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Loader2, X, MapPin, Building, Trees, Landmark, ArrowRight } from 'lucide-react';
+import { Search, Loader2, MapPin, Building, Trees, Landmark, ArrowRight, ArrowLeft } from 'lucide-react';
 import { searchAddress } from '../services/nominatim';
 import { NominatimResult } from '../types';
 
@@ -146,18 +146,18 @@ export const SearchPanel: React.FC<SearchPanelProps> = ({
         />
 
         {query && (
-          <button
-            type="button"
-            onClick={() => {
-              setQuery('');
-              setResults([]);
-              setIsOpen(false);
-            }}
-            className="absolute right-3 p-1.5 text-neutral-400 hover:text-neutral-800 hover:bg-neutral-100 rounded-lg transition-colors"
-            aria-label="Clear search"
-          >
-            <X className="w-4 h-4" />
-          </button>
+            <button
+              type="button"
+              onClick={() => {
+                setQuery('');
+                setResults([]);
+                setIsOpen(false);
+              }}
+              className="absolute right-3 p-1.5 text-neutral-400 hover:text-neutral-800 hover:bg-neutral-100 rounded-full transition-colors"
+              aria-label="Clear search"
+            >
+              <ArrowLeft className="w-4 h-4" />
+            </button>
         )}
       </div>
 

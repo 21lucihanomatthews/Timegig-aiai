@@ -5,7 +5,6 @@
 
 import React, { useState, useRef } from 'react';
 import {
-  X,
   Building2,
   UserCheck,
   TrendingUp,
@@ -323,17 +322,21 @@ export const ActivationModal: React.FC<ActivationModalProps> = ({
       {/* 1. Full Screen Top Navigation Header */}
       <header className="px-5 py-4 border-b border-neutral-200/50 flex items-center justify-between bg-white/50 backdrop-blur-md shrink-0">
         <div className="flex items-center gap-3">
-          {(step === 'transfer' || step === 'selfie') && !isLoading && (
             <button
               type="button"
-              onClick={() => setStep(step === 'transfer' ? 'selfie' : 'select')}
+              onClick={() => {
+                if (step === 'select') {
+                  handleResetAndClose();
+                } else {
+                  setStep(step === 'transfer' ? 'selfie' : 'select');
+                }
+              }}
               className="p-2 -ml-2 text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 rounded-full transition-colors"
               title="Back"
               aria-label="Back"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
-          )}
 
           <div>
             <h2 className="text-base font-bold text-neutral-900 leading-tight">
@@ -351,15 +354,6 @@ export const ActivationModal: React.FC<ActivationModalProps> = ({
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={handleResetAndClose}
-          disabled={isLoading}
-          className="p-2 text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 rounded-xl transition-colors disabled:opacity-30"
-          aria-label="Close"
-        >
-          <X className="w-5 h-5" />
-        </button>
       </header>
 
       {/* 2. Full Screen Scrollable Body Content */}
@@ -872,8 +866,8 @@ export const ActivationModal: React.FC<ActivationModalProps> = ({
         <div className="fixed inset-0 z-[20000] bg-black flex flex-col animate-in fade-in duration-300">
           <header className="p-4 flex items-center justify-between">
             <h4 className="text-white font-bold">Capture Identification Selfie</h4>
-            <button onClick={stopCamera} className="p-2 text-white/70 hover:text-white">
-              <X className="w-6 h-6" />
+            <button onClick={stopCamera} className="p-2 -ml-2 text-white/70 hover:text-white rounded-full hover:bg-white/10">
+              <ArrowLeft className="w-6 h-6" />
             </button>
           </header>
           
@@ -902,7 +896,7 @@ export const ActivationModal: React.FC<ActivationModalProps> = ({
               onClick={stopCamera}
               className="w-14 h-14 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/20"
             >
-              <X className="w-6 h-6" />
+              <ArrowLeft className="w-6 h-6" />
             </button>
             <button
               onClick={capturePhoto}

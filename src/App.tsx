@@ -12,9 +12,9 @@ import {
   AlertCircle,
   RefreshCw,
   CheckCircle,
-  X,
   MapPin,
   Loader2,
+  ArrowLeft,
 } from 'lucide-react';
 import { TimeGigMap } from './components/TimeGigMap';
 import { SearchPanel } from './components/SearchPanel';
@@ -228,14 +228,12 @@ export default function App() {
       </div>
     );
   }
-
+  return (
+    <div className="relative w-screen h-screen overflow-hidden bg-neutral-950 font-sans select-none">
       {/* 0. Authentication Overlay (if not logged in) */}
       {!user && (
         <AuthScreen onAuthenticated={handleAuthenticated} />
       )}
-
-  return (
-    <div className="relative w-screen h-screen overflow-hidden bg-neutral-950 font-sans select-none">
       {/* 1. Full-Screen Edge-to-Edge OpenStreetMap Map using React-Leaflet */}
       <div className="w-full h-full z-0">
         <TimeGigMap
@@ -391,9 +389,10 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => setIsApplyModalOpen(false)}
-                className="p-1.5 text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 rounded-lg transition-colors"
+                className="p-2 -ml-2 text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 rounded-full transition-colors"
+                aria-label="Back"
               >
-                <X className="w-4 h-4" />
+                <ArrowLeft className="w-5 h-5" />
               </button>
             </div>
 

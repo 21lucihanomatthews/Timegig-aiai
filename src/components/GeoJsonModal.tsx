@@ -4,7 +4,7 @@
  */
 
 import React, { useState } from 'react';
-import { X, Copy, Check, Download, Upload, FileCode, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Copy, Check, Download, Upload, FileCode, CheckCircle2 } from 'lucide-react';
 import { MarkerItem, RouteResult } from '../types';
 import { exportToGeoJson } from '../utils/geoUtils';
 
@@ -125,9 +125,10 @@ export const GeoJsonModal: React.FC<GeoJsonModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="text-neutral-400 hover:text-white p-1 rounded-lg"
+            className="p-2 -ml-2 text-neutral-400 hover:text-white hover:bg-white/10 rounded-full transition-colors"
+            aria-label="Back"
           >
-            <X className="w-4 h-4" />
+            <ArrowLeft className="w-5 h-5" />
           </button>
         </div>
 

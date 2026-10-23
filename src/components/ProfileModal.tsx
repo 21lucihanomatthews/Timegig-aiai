@@ -5,7 +5,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import {
-  X,
   User,
   Edit3,
   Check,
@@ -439,6 +438,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
           <button
             onClick={onClose}
             className="p-2 -ml-2 text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 rounded-full transition-colors"
+            aria-label="Back"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
@@ -447,12 +447,6 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
             <p className="text-[10px] text-neutral-500 uppercase tracking-wider font-bold">Work & Identity Passport</p>
           </div>
         </div>
-        <button
-          onClick={onClose}
-          className="p-2 text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 rounded-xl transition-colors"
-        >
-          <X className="w-5 h-5" />
-        </button>
       </header>
 
       {/* Main Content */}
@@ -1040,8 +1034,8 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
         <div className="fixed inset-0 z-[20000] bg-black flex flex-col animate-in fade-in duration-300">
           <header className="p-4 flex items-center justify-between">
             <h4 className="text-white font-bold">Capture Worker Selfie</h4>
-            <button onClick={stopCamera} className="p-2 text-white/70 hover:text-white">
-              <X className="w-6 h-6" />
+            <button onClick={stopCamera} className="p-2 -ml-2 text-white/70 hover:text-white rounded-full hover:bg-white/10">
+              <ArrowLeft className="w-6 h-6" />
             </button>
           </header>
           
@@ -1070,7 +1064,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
               onClick={stopCamera}
               className="w-14 h-14 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/20"
             >
-              <X className="w-6 h-6" />
+              <ArrowLeft className="w-6 h-6" />
             </button>
             <button
               onClick={capturePhoto}

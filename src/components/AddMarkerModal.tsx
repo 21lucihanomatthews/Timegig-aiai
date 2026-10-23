@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { X, MapPin, Loader2, Landmark, Trees, Building2, Atom, Tag } from 'lucide-react';
+import { ArrowLeft, MapPin, Loader2, Landmark, Trees, Building2, Atom, Tag } from 'lucide-react';
 import { PoiCategory } from '../types';
 import { reverseGeocode } from '../services/nominatim';
 
@@ -100,9 +100,10 @@ export const AddMarkerModal: React.FC<AddMarkerModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="text-neutral-400 hover:text-white p-1 rounded-lg"
+            className="p-2 -ml-2 text-neutral-400 hover:text-white hover:bg-white/10 rounded-full transition-colors"
+            aria-label="Back"
           >
-            <X className="w-4 h-4" />
+            <ArrowLeft className="w-5 h-5" />
           </button>
         </div>
 

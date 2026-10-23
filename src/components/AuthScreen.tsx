@@ -264,7 +264,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
   };
 
   return (
-    <div className="fixed inset-0 w-screen h-screen bg-neutral-950/40 backdrop-blur-md flex items-center justify-center p-4 z-[99999] overflow-y-auto font-sans">
+    <div className="fixed inset-0 w-screen h-screen bg-white/20 backdrop-blur-xl flex items-center justify-center p-4 z-[99999] overflow-y-auto font-sans">
       {/* Background Decorative Gradients */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-96 h-96 bg-sky-500/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-10 right-1/4 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
@@ -602,9 +602,10 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
               <button
                 type="button"
                 onClick={() => setIsTermsModalOpen(false)}
-                className="p-1.5 text-neutral-400 hover:text-neutral-700 rounded-lg"
+                className="p-2 -ml-2 text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 rounded-full transition-colors"
+                aria-label="Back"
               >
-                <X className="w-4 h-4" />
+                <ArrowLeft className="w-5 h-5" />
               </button>
             </div>
 

@@ -4,7 +4,7 @@
  */
 
 import React, { useState } from 'react';
-import { X, Copy, Check, Code, FileText, Layers, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, Copy, Check, Code, FileText, Layers, ShieldCheck } from 'lucide-react';
 import { TILE_PROVIDERS } from '../data/tileProviders';
 
 interface CodeTemplateModalProps {
@@ -148,9 +148,10 @@ async function getRoute(startLng, startLat, endLng, endLat) {
           <button
             type="button"
             onClick={onClose}
-            className="text-neutral-400 hover:text-white p-1 rounded-lg"
+            className="p-2 -ml-2 text-neutral-400 hover:text-white hover:bg-white/10 rounded-full transition-colors"
+            aria-label="Back"
           >
-            <X className="w-4 h-4" />
+            <ArrowLeft className="w-5 h-5" />
           </button>
         </div>
 
