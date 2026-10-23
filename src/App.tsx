@@ -20,7 +20,6 @@ import { TimeGigMap } from './components/TimeGigMap';
 import { SearchPanel } from './components/SearchPanel';
 import { BottomMenuBar } from './components/BottomMenuBar';
 import { ActivationModal } from './components/ActivationModal';
-import { ProfileModal } from './components/ProfileModal';
 import { TenantDashboard } from './components/TenantDashboard';
 import { AuthScreen } from './components/AuthScreen';
 import { auth } from './firebase';
@@ -69,8 +68,9 @@ export default function App() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
 
-  // Bottom menu bar state: 'activation' | 'profile' | 'tenant' | null
-  const [activeBottomTab, setActiveBottomTab] = useState<'activation' | 'profile' | 'tenant' | null>(null);
+  // Bottom menu bar state: 'activation' | 'tenant' | null
+  const [activeBottomTab, setActiveBottomTab] = useState<'activation' | 'tenant' | null>(null);
+  const [showSelfieCard, setShowSelfieCard] = useState<boolean>(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -108,7 +108,7 @@ export default function App() {
     }
   };
 
-  const handleSelectBottomTab = (tab: 'activation' | 'profile' | 'tenant') => {
+  const handleSelectBottomTab = (tab: 'activation' | 'tenant') => {
     setActiveBottomTab((prev) => (prev === tab ? null : tab));
   };
 
@@ -339,7 +339,105 @@ export default function App() {
         </div>
       )}
 
-      {/* 6. Bottom Menu Bar with Activation and Profile Features */}
+      {/* Top Corner User Selfie Avatar / Badge */}
+      {user && (
+        <div
+          className="absolute top-4 left-4 sm:top-5 sm:left-6 pointer-events-auto z-[9999]"
+        >
+          <div
+            onClick={() => setShowSelfieCard(!showSelfieCard)}
+            className="cursor-pointer bg-white/90 backdrop-blur-md border-2 border-neutral-300 hover:border-sky-500 rounded-full p-1 shadow-2xl flex items-center gap-2 pr-3 transition-all group"
+          >
+            <div className="relative w-10 h-10 rounded-full overflow-hidden bg-neutral-200 border border-white shrink-0 shadow-inner">
+              {userProfile?.selfieUrl || userProfile?.profilePictureUrl ? (
+                <img
+                  src={userProfile.selfieUrl || userProfile.profilePictureUrl}
+                  alt="Selfie"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-sky-100 text-sky-700 font-bold text-xs uppercase">
+                  {userProfile?.firstName?.[0] || 'U'}
+                </div>
+              )}
+              <span
+                className={`absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full border-2 border-white ${
+                  userProfile?.verificationStatus === 'approved'
+                    ? 'bg-emerald-500'
+                    : 'bg-amber-500'
+                }`}
+              />
+            </div>
+            <div className="hidden sm:flex flex-col">
+              <span className="text-xs font-black text-neutral-900 leading-none">
+                {userProfile?.firstName || 'User'}
+              </span>
+              <span className="text-[9px] font-bold text-neutral-500 uppercase tracking-tight mt-0.5">
+                {userProfile?.verificationStatus === 'approved' ? 'Verified' : 'Pending'}
+              </span>
+            </div>
+          </div>
+
+          {/* User Selfie Popover Details Card */}
+          {showSelfieCard && (
+            <div className="absolute left-0 top-14 w-64 bg-white/95 backdrop-blur-2xl border border-neutral-200 rounded-2xl p-4 shadow-2xl animate-in fade-in zoom-in-95 duration-150 space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-full overflow-hidden bg-neutral-100 border-2 border-sky-500 shrink-0">
+                  {userProfile?.selfieUrl || userProfile?.profilePictureUrl ? (
+                    <img
+                      src={userProfile.selfieUrl || userProfile.profilePictureUrl}
+                      alt="Selfie"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-sky-100 text-sky-700 font-bold text-sm">
+                      {userProfile?.firstName?.[0] || 'U'}
+                    </div>
+                  )}
+                </div>
+                <div className="min-w-0">
+                  <div className="text-xs font-black text-neutral-900 truncate">
+                    {userProfile?.firstName} {userProfile?.surname}
+                  </div>
+                  <div className="text-[10px] text-neutral-500 truncate">{user?.email}</div>
+                  <span className={`inline-block mt-1 px-2 py-0.5 rounded text-[8px] font-black uppercase ${
+                    userProfile?.verificationStatus === 'approved' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
+                  }`}>
+                    {userProfile?.verificationStatus === 'approved' ? 'Verified Account' : 'Verification Pending'}
+                  </span>
+                </div>
+              </div>
+
+              <div className="pt-2 border-t border-neutral-100 flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowSelfieCard(false);
+                    setActiveBottomTab('activation');
+                  }}
+                  className="flex-1 py-1.5 px-2 bg-sky-50 hover:bg-sky-100 text-sky-700 rounded-xl text-[10px] font-bold transition-colors text-center"
+                >
+                  Activation
+                </button>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    await auth.signOut();
+                    setUser(null);
+                    setUserProfile(null);
+                    setShowSelfieCard(false);
+                  }}
+                  className="py-1.5 px-3 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-[10px] font-bold transition-colors"
+                >
+                  Sign Out
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* 6. Bottom Menu Bar with Activation and Tenant Features */}
       <BottomMenuBar
         activeTab={activeBottomTab}
         onSelectTab={handleSelectBottomTab}
@@ -350,23 +448,10 @@ export default function App() {
       <ActivationModal
         isOpen={activeBottomTab === 'activation'}
         onClose={() => setActiveBottomTab(null)}
-        onActivationComplete={() => setActiveBottomTab('profile')}
+        onActivationComplete={() => setActiveBottomTab(null)}
         currentUser={user}
         userProfile={userProfile}
         onProfileUpdated={(updated) => setUserProfile(updated)}
-      />
-
-      {/* 8. Profile Feature Modal */}
-      <ProfileModal
-        isOpen={activeBottomTab === 'profile'}
-        onClose={() => setActiveBottomTab(null)}
-        currentUser={user}
-        userProfile={userProfile}
-        onProfileUpdated={(updated) => setUserProfile(updated)}
-        onLogout={() => {
-          setUser(null);
-          setUserProfile(null);
-        }}
       />
 
       {/* 9. Tenant Dashboard Modal */}

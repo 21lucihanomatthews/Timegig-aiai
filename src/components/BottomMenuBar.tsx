@@ -8,8 +8,8 @@ import { ShieldCheck, User, Building2 } from 'lucide-react';
 import { UserProfile } from '../types';
 
 interface BottomMenuBarProps {
-  activeTab: 'activation' | 'profile' | 'tenant' | null;
-  onSelectTab: (tab: 'activation' | 'profile' | 'tenant') => void;
+  activeTab: 'activation' | 'tenant' | null;
+  onSelectTab: (tab: 'activation' | 'tenant') => void;
   isActivated?: boolean;
   userProfile?: UserProfile | null;
 }
@@ -17,7 +17,6 @@ interface BottomMenuBarProps {
 export const BottomMenuBar: React.FC<BottomMenuBarProps> = ({
   activeTab,
   onSelectTab,
-  isActivated = true,
   userProfile,
 }) => {
   const isTenantUser = userProfile?.subscriptionPlan === 'tenant';
@@ -70,6 +69,8 @@ export const BottomMenuBar: React.FC<BottomMenuBarProps> = ({
         </button>
 
         <div className="h-8 w-px bg-neutral-200/80 my-auto" />
+
+        {/* Tenant Dashboard Tab */}
         <button
           type="button"
           onClick={() => onSelectTab('tenant')}
@@ -103,48 +104,7 @@ export const BottomMenuBar: React.FC<BottomMenuBarProps> = ({
                 : 'font-medium text-neutral-600 group-hover:text-neutral-900'
             }`}
           >
-            Tenant
-          </span>
-        </button>
-
-        {/* Subtle divider */}
-        <div className="h-8 w-px bg-neutral-200/80 my-auto" />
-
-        {/* Profile Feature Tab */}
-        <button
-          type="button"
-          onClick={() => onSelectTab('profile')}
-          className={`flex-1 flex flex-col items-center justify-center py-1.5 px-3 rounded-xl transition-all group ${
-            activeTab === 'profile'
-              ? 'text-sky-600'
-              : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-50'
-          }`}
-          title="User Profile & Settings"
-          aria-label="Profile"
-        >
-          <div className="relative flex items-center justify-center">
-            <div
-              className={`p-1 rounded-xl transition-colors ${
-                activeTab === 'profile' ? 'bg-sky-50' : 'group-hover:bg-neutral-100'
-              }`}
-            >
-              <User
-                className={`w-5 h-5 stroke-[2.2] transition-colors ${
-                  activeTab === 'profile'
-                    ? 'text-sky-600'
-                    : 'text-neutral-600 group-hover:text-neutral-900'
-                }`}
-              />
-            </div>
-          </div>
-          <span
-            className={`text-[11px] sm:text-xs mt-0.5 tracking-tight transition-colors ${
-              activeTab === 'profile'
-                ? 'font-bold text-sky-700'
-                : 'font-medium text-neutral-600 group-hover:text-neutral-900'
-            }`}
-          >
-            Profile
+            Tenant Dashboard
           </span>
         </button>
       </nav>
