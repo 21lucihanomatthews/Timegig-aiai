@@ -317,11 +317,11 @@ export const ActivationModal: React.FC<ActivationModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 w-full h-full bg-white z-[10000] flex flex-col pointer-events-auto animate-in fade-in duration-150 overflow-hidden"
+      className="fixed inset-0 w-full h-full bg-white/70 backdrop-blur-xl z-[10000] flex flex-col pointer-events-auto animate-in fade-in duration-150 overflow-hidden"
       style={{ zIndex: 10000 }}
     >
       {/* 1. Full Screen Top Navigation Header */}
-      <header className="px-5 py-4 border-b border-neutral-200 flex items-center justify-between bg-white shrink-0">
+      <header className="px-5 py-4 border-b border-neutral-200/50 flex items-center justify-between bg-white/50 backdrop-blur-md shrink-0">
         <div className="flex items-center gap-3">
           {(step === 'transfer' || step === 'selfie') && !isLoading && (
             <button

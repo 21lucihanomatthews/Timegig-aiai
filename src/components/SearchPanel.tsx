@@ -163,10 +163,10 @@ export const SearchPanel: React.FC<SearchPanelProps> = ({
 
       {/* Autocomplete Dropdown List */}
       {isOpen && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white border-2 border-neutral-200 rounded-2xl shadow-2xl overflow-hidden z-50 divide-y divide-neutral-100 max-h-96 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-150">
+        <div className="absolute top-full left-0 right-0 mt-2 bg-white/80 backdrop-blur-xl border-2 border-neutral-200/50 rounded-2xl shadow-2xl overflow-hidden z-50 divide-y divide-neutral-100 max-h-96 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-150">
           {results.length > 0 ? (
             <div className="py-1">
-              <div className="px-4 py-2 text-[10px] font-bold text-neutral-400 uppercase tracking-wider flex items-center justify-between bg-neutral-50">
+              <div className="px-4 py-2 text-[10px] font-bold text-neutral-400 uppercase tracking-wider flex items-center justify-between bg-neutral-50/50">
                 <span>Location Matches</span>
                 <span className="text-[10px] text-sky-600 font-mono">OpenStreetMap Search</span>
               </div>
@@ -219,7 +219,7 @@ export const SearchPanel: React.FC<SearchPanelProps> = ({
           ) : null}
 
           {/* Quick jump suggestions */}
-          <div className="p-3 bg-neutral-50 border-t border-neutral-100">
+          <div className="p-3 bg-neutral-50/50 border-t border-neutral-100/50">
             <div className="text-[10px] text-neutral-400 mb-1.5 px-1 font-bold uppercase tracking-wider">
               Popular Quick Jumps
             </div>

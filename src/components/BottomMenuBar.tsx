@@ -19,7 +19,7 @@ export const BottomMenuBar: React.FC<BottomMenuBarProps> = ({
 }) => {
   return (
     <div
-      className="bottom-menu-bar-container fixed bottom-0 left-0 right-0 w-full bg-white/95 backdrop-blur-md border-t border-neutral-200 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] pointer-events-auto"
+      className="bottom-menu-bar-container fixed bottom-0 left-0 right-0 w-full bg-white/70 backdrop-blur-md border-t border-neutral-200/50 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] pointer-events-auto"
       style={{ zIndex: 9999 }}
     >
       <nav

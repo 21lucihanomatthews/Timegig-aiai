@@ -229,9 +229,10 @@ export default function App() {
     );
   }
 
-  if (!user) {
-    return <AuthScreen onAuthenticated={handleAuthenticated} />;
-  }
+      {/* 0. Authentication Overlay (if not logged in) */}
+      {!user && (
+        <AuthScreen onAuthenticated={handleAuthenticated} />
+      )}
 
   return (
     <div className="relative w-screen h-screen overflow-hidden bg-neutral-950 font-sans select-none">
@@ -315,7 +316,7 @@ export default function App() {
       {/* 5. Clear GPS Retry & Permission Card (Positioned above bottom menu bar) */}
       {locationError && (
         <div
-          className="absolute bottom-20 sm:bottom-24 left-1/2 -translate-x-1/2 max-w-sm sm:max-w-md w-[calc(100%-2rem)] bg-white border-2 border-amber-300 rounded-2xl p-4 shadow-2xl flex items-start gap-3 pointer-events-auto animate-in fade-in slide-in-from-bottom-3 duration-200"
+          className="absolute bottom-20 sm:bottom-24 left-1/2 -translate-x-1/2 max-w-sm sm:max-w-md w-[calc(100%-2rem)] bg-white/80 backdrop-blur-lg border-2 border-amber-300/50 rounded-2xl p-4 shadow-2xl flex items-start gap-3 pointer-events-auto animate-in fade-in slide-in-from-bottom-3 duration-200"
           style={{ zIndex: 9999 }}
         >
           <AlertCircle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
@@ -371,8 +372,8 @@ export default function App() {
           className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4"
           style={{ zIndex: 10000 }}
         >
-          <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl overflow-hidden border border-neutral-200 animate-in fade-in zoom-in-95 duration-150">
-            <div className="p-5 border-b border-neutral-100 flex items-start justify-between">
+          <div className="bg-white/80 backdrop-blur-xl rounded-2xl max-w-md w-full shadow-2xl overflow-hidden border border-neutral-200/50 animate-in fade-in zoom-in-95 duration-150">
+            <div className="p-5 border-b border-neutral-100/50 flex items-start justify-between bg-white/30 backdrop-blur-md">
               <div>
                 <span className="text-[10px] font-bold text-sky-600 uppercase tracking-wider">
                   {selectedGig.category}

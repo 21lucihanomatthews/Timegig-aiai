@@ -432,9 +432,9 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
   const userEmail = currentUser?.email || userProfile?.email || 'user@example.com';
 
   return (
-    <div className="fixed inset-0 w-full h-full bg-white z-[10000] flex flex-col overflow-hidden animate-in fade-in duration-200">
+    <div className="fixed inset-0 w-full h-full bg-white/75 backdrop-blur-2xl z-[10000] flex flex-col overflow-hidden animate-in fade-in duration-200">
       {/* Header */}
-      <header className="px-5 py-4 border-b border-neutral-200 flex items-center justify-between bg-white shrink-0 shadow-sm z-10">
+      <header className="px-5 py-4 border-b border-neutral-200/50 flex items-center justify-between bg-white/60 backdrop-blur-md shrink-0 shadow-sm z-10">
         <div className="flex items-center gap-3">
           <button
             onClick={onClose}
@@ -456,7 +456,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto bg-neutral-50/50">
+      <main className="flex-1 overflow-y-auto bg-neutral-50/20">
         <div className="max-w-2xl mx-auto p-6">
           {isLoadingProfile ? (
             <div className="flex flex-col items-center justify-center py-20 gap-4">
