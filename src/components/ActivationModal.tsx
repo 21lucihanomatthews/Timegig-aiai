@@ -23,6 +23,7 @@ import { User as FirebaseUser } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { UserProfile } from '../types';
+import { playPopSound } from '../utils/audioUtils';
 
 interface ActivationModalProps {
   isOpen: boolean;
@@ -317,6 +318,7 @@ export const ActivationModal: React.FC<ActivationModalProps> = ({
         }
 
         await setDoc(userDocRef, updatedProfileData, { merge: true });
+        playPopSound();
         
         if (onProfileUpdated && userProfile) {
           onProfileUpdated({

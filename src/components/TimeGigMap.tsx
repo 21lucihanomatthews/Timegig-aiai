@@ -22,6 +22,8 @@ import {
 import { GigItem } from '../data/timegigData';
 import { haversineDistanceMeters, formatDistance } from '../utils/geoUtils';
 
+import { UserProfile } from '../types';
+
 // Fix Leaflet default icon paths in bundlers / Vercel deployment
 delete (L.Icon.Default.prototype as unknown as { _getIconUrl?: unknown })._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -40,6 +42,7 @@ interface UserLocation {
 interface TimeGigMapProps {
   gigs: GigItem[];
   userLocation: UserLocation | null;
+  userProfile?: UserProfile | null;
   targetLocation: { lat: number; lng: number; zoom?: number } | null;
   selectedGig: GigItem | null;
   onSelectGig: (gig: GigItem) => void;
@@ -70,6 +73,7 @@ function MapViewController({
 export const TimeGigMap: React.FC<TimeGigMapProps> = ({
   gigs,
   userLocation,
+  userProfile,
   targetLocation,
   selectedGig,
   onSelectGig,
@@ -81,21 +85,33 @@ export const TimeGigMap: React.FC<TimeGigMapProps> = ({
   const defaultSouthAfricaCenter: [number, number] = [-29.0, 25.0];
   const defaultZoom = 6;
 
-  // Custom User Location Puck Icon
+  const selfieImg = userProfile?.selfieUrl || userProfile?.profilePictureUrl;
+  const userInitial = userProfile?.firstName?.[0] || 'U';
+
+  // Custom User Selfie Map Icon
   const userLocationIcon = L.divIcon({
-    className: 'timegig-user-puck',
+    className: 'timegig-user-selfie-marker',
     html: `
-      <div class="relative flex items-center justify-center cursor-pointer" style="width: 44px; height: 44px;">
-        <div class="radar-ring absolute inset-0 rounded-full bg-sky-500 opacity-60"></div>
-        <div class="absolute w-7 h-7 rounded-full bg-sky-500/30 animate-ping"></div>
-        <div class="relative w-5 h-5 rounded-full bg-sky-600 border-[3px] border-white shadow-2xl flex items-center justify-center">
-          <div class="w-1.5 h-1.5 rounded-full bg-white"></div>
+      <div class="relative flex items-center justify-center cursor-pointer" style="width: 52px; height: 52px;">
+        <div class="radar-ring absolute inset-0 rounded-full bg-sky-500 opacity-50"></div>
+        <div class="absolute inset-0 rounded-full bg-sky-500/20 animate-ping"></div>
+        <div class="relative w-11 h-11 rounded-full overflow-hidden border-[3px] ${
+          userProfile?.verificationStatus === 'approved' ? 'border-emerald-500 ring-2 ring-emerald-500/30' : 'border-sky-500 ring-2 ring-sky-500/30'
+        } bg-white shadow-2xl flex items-center justify-center">
+          ${
+            selfieImg
+              ? `<img src="${selfieImg}" class="w-full h-full object-cover" alt="Selfie" />`
+              : `<div class="w-full h-full bg-sky-600 text-white font-black text-sm flex items-center justify-center">${userInitial}</div>`
+          }
         </div>
+        <div class="absolute -bottom-0.5 w-3.5 h-3.5 rounded-full border-2 border-white ${
+          userProfile?.verificationStatus === 'approved' ? 'bg-emerald-500' : 'bg-amber-500'
+        }"></div>
       </div>
     `,
-    iconSize: [44, 44],
-    iconAnchor: [22, 22],
-    popupAnchor: [0, -22],
+    iconSize: [52, 52],
+    iconAnchor: [26, 26],
+    popupAnchor: [0, -26],
   });
 
   // Custom Search Location Icon
@@ -185,7 +201,7 @@ export const TimeGigMap: React.FC<TimeGigMapProps> = ({
         {/* View Controller for Camera Moves */}
         <MapViewController target={targetLocation} />
 
-        {/* User GPS Location in South Africa */}
+        {/* User GPS Location on Map with User Selfie */}
         {userLocation && (
           <>
             <Circle
@@ -205,16 +221,24 @@ export const TimeGigMap: React.FC<TimeGigMapProps> = ({
               zIndexOffset={1000}
             >
               <Popup>
-                <div className="p-1 font-sans min-w-[180px]">
-                  <div className="flex items-center gap-1.5 text-xs font-bold text-white mb-1">
-                    <span className="w-2 h-2 rounded-full bg-sky-400"></span>
-                    <span>Your Actual GPS Location</span>
+                <div className="p-1.5 font-sans min-w-[200px] text-center">
+                  <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-sky-500 mx-auto mb-2 shadow-md bg-neutral-100 flex items-center justify-center">
+                    {selfieImg ? (
+                      <img src={selfieImg} className="w-full h-full object-cover" alt="Selfie" />
+                    ) : (
+                      <div className="w-full h-full bg-sky-600 text-white font-bold text-lg flex items-center justify-center">
+                        {userInitial}
+                      </div>
+                    )}
                   </div>
-                  <div className="text-[11px] text-neutral-300 font-mono">
+                  <div className="text-xs font-black text-white">
+                    {userProfile?.firstName ? `${userProfile.firstName} ${userProfile.surname || ''}` : 'My Location'}
+                  </div>
+                  <div className="text-[10px] text-neutral-300 font-mono mt-0.5">
                     {userLocation.lat.toFixed(5)}°, {userLocation.lng.toFixed(5)}°
                   </div>
-                  <div className="text-[10px] text-neutral-400 mt-1">
-                    GPS Accuracy: &plusmn;{Math.round(userLocation.accuracy)} meters
+                  <div className="mt-2 inline-block px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider text-white" style={{ backgroundColor: userProfile?.verificationStatus === 'approved' ? '#059669' : '#d97706' }}>
+                    {userProfile?.verificationStatus === 'approved' ? 'Verified Account' : 'Verification Pending'}
                   </div>
                 </div>
               </Popup>

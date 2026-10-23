@@ -24,10 +24,11 @@ import { TenantDashboard } from './components/TenantDashboard';
 import { AuthScreen } from './components/AuthScreen';
 import { auth } from './firebase';
 import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
-import { getDoc, doc } from 'firebase/firestore';
+import { getDoc, doc, collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from './firebase';
 import { UserProfile } from './types';
 import { GigItem, TIMEGIG_SOUTH_AFRICA_GIGS } from './data/timegigData';
+import { playReferralSound, playPopSound } from './utils/audioUtils';
 
 interface UserLocation {
   lat: number;
@@ -70,7 +71,6 @@ export default function App() {
 
   // Bottom menu bar state: 'activation' | 'tenant' | null
   const [activeBottomTab, setActiveBottomTab] = useState<'activation' | 'tenant' | null>(null);
-  const [showSelfieCard, setShowSelfieCard] = useState<boolean>(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -99,6 +99,41 @@ export default function App() {
     });
     return () => unsubscribe();
   }, []);
+
+  // Real-time sound notification listener for new referrals & PoP uploads
+  useEffect(() => {
+    if (!user) return;
+
+    let isInitialLoad = true;
+    const refQuery = query(collection(db, 'users'), where('referredBy', '==', user.uid));
+
+    const unsubscribeSounds = onSnapshot(refQuery, (snapshot) => {
+      if (isInitialLoad) {
+        isInitialLoad = false;
+        return;
+      }
+
+      snapshot.docChanges().forEach((change) => {
+        if (change.type === 'added') {
+          // New referral joined!
+          playReferralSound();
+          const data = change.doc.data() as UserProfile;
+          if (data.proofOfPaymentUrl) {
+            playPopSound();
+          }
+        } else if (change.type === 'modified') {
+          const data = change.doc.data() as UserProfile;
+          if (data.proofOfPaymentUrl) {
+            playPopSound();
+          }
+        }
+      });
+    }, (err) => {
+      console.warn('Realtime sound listener error:', err);
+    });
+
+    return () => unsubscribeSounds();
+  }, [user]);
 
   const handleAuthenticated = (firebaseUser: FirebaseUser, profile: UserProfile) => {
     setUser(firebaseUser);
@@ -243,6 +278,7 @@ export default function App() {
         <TimeGigMap
           gigs={gigs}
           userLocation={userLocation}
+          userProfile={userProfile}
           targetLocation={targetLocation}
           selectedGig={selectedGig}
           onSelectGig={(gig) => setSelectedGig(gig)}
@@ -339,103 +375,7 @@ export default function App() {
         </div>
       )}
 
-      {/* Top Corner User Selfie Avatar / Badge */}
-      {user && (
-        <div
-          className="absolute top-4 left-4 sm:top-5 sm:left-6 pointer-events-auto z-[9999]"
-        >
-          <div
-            onClick={() => setShowSelfieCard(!showSelfieCard)}
-            className="cursor-pointer bg-white/90 backdrop-blur-md border-2 border-neutral-300 hover:border-sky-500 rounded-full p-1 shadow-2xl flex items-center gap-2 pr-3 transition-all group"
-          >
-            <div className="relative w-10 h-10 rounded-full overflow-hidden bg-neutral-200 border border-white shrink-0 shadow-inner">
-              {userProfile?.selfieUrl || userProfile?.profilePictureUrl ? (
-                <img
-                  src={userProfile.selfieUrl || userProfile.profilePictureUrl}
-                  alt="Selfie"
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center bg-sky-100 text-sky-700 font-bold text-xs uppercase">
-                  {userProfile?.firstName?.[0] || 'U'}
-                </div>
-              )}
-              <span
-                className={`absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full border-2 border-white ${
-                  userProfile?.verificationStatus === 'approved'
-                    ? 'bg-emerald-500'
-                    : 'bg-amber-500'
-                }`}
-              />
-            </div>
-            <div className="hidden sm:flex flex-col">
-              <span className="text-xs font-black text-neutral-900 leading-none">
-                {userProfile?.firstName || 'User'}
-              </span>
-              <span className="text-[9px] font-bold text-neutral-500 uppercase tracking-tight mt-0.5">
-                {userProfile?.verificationStatus === 'approved' ? 'Verified' : 'Pending'}
-              </span>
-            </div>
-          </div>
 
-          {/* User Selfie Popover Details Card */}
-          {showSelfieCard && (
-            <div className="absolute left-0 top-14 w-64 bg-white/95 backdrop-blur-2xl border border-neutral-200 rounded-2xl p-4 shadow-2xl animate-in fade-in zoom-in-95 duration-150 space-y-3">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full overflow-hidden bg-neutral-100 border-2 border-sky-500 shrink-0">
-                  {userProfile?.selfieUrl || userProfile?.profilePictureUrl ? (
-                    <img
-                      src={userProfile.selfieUrl || userProfile.profilePictureUrl}
-                      alt="Selfie"
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-sky-100 text-sky-700 font-bold text-sm">
-                      {userProfile?.firstName?.[0] || 'U'}
-                    </div>
-                  )}
-                </div>
-                <div className="min-w-0">
-                  <div className="text-xs font-black text-neutral-900 truncate">
-                    {userProfile?.firstName} {userProfile?.surname}
-                  </div>
-                  <div className="text-[10px] text-neutral-500 truncate">{user?.email}</div>
-                  <span className={`inline-block mt-1 px-2 py-0.5 rounded text-[8px] font-black uppercase ${
-                    userProfile?.verificationStatus === 'approved' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
-                  }`}>
-                    {userProfile?.verificationStatus === 'approved' ? 'Verified Account' : 'Verification Pending'}
-                  </span>
-                </div>
-              </div>
-
-              <div className="pt-2 border-t border-neutral-100 flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowSelfieCard(false);
-                    setActiveBottomTab('activation');
-                  }}
-                  className="flex-1 py-1.5 px-2 bg-sky-50 hover:bg-sky-100 text-sky-700 rounded-xl text-[10px] font-bold transition-colors text-center"
-                >
-                  Activation
-                </button>
-                <button
-                  type="button"
-                  onClick={async () => {
-                    await auth.signOut();
-                    setUser(null);
-                    setUserProfile(null);
-                    setShowSelfieCard(false);
-                  }}
-                  className="py-1.5 px-3 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-[10px] font-bold transition-colors"
-                >
-                  Sign Out
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
 
       {/* 6. Bottom Menu Bar with Activation and Tenant Features */}
       <BottomMenuBar
