@@ -48,8 +48,17 @@ export const TenantDashboard: React.FC<TenantDashboardProps> = ({
   useEffect(() => {
     if (!isOpen) return;
 
-    // Listen for users with 'pending' verification status for the badge and verification tab
-    const pendingQuery = query(collection(db, 'users'), where('verificationStatus', '==', 'pending'));
+    const isAdmin = currentUser?.email === '21lucihanomatthews@gmail.com';
+    const isTenant = currentUser?.subscriptionPlan === 'tenant';
+    
+    // Listen for users with 'pending' verification status
+    let pendingQuery;
+    if (isAdmin) {
+      pendingQuery = query(collection(db, 'users'), where('verificationStatus', '==', 'pending'));
+    } else {
+      pendingQuery = query(collection(db, 'users'), where('verificationStatus', '==', 'pending'), where('referredBy', '==', currentUser.uid));
+    }
+    
     const unsubscribePending = onSnapshot(pendingQuery, (snapshot) => {
       const users: UserProfile[] = [];
       snapshot.forEach((doc) => {
@@ -64,24 +73,28 @@ export const TenantDashboard: React.FC<TenantDashboardProps> = ({
       setLoading(false);
     });
 
-    // Listen for all users for stats and other tabs
-    const allUsersQuery = collection(db, 'users');
+    // Listen for all users for stats
+    let allUsersQuery;
+    if (isAdmin) {
+      allUsersQuery = collection(db, 'users');
+    } else {
+      allUsersQuery = query(collection(db, 'users'), where('referredBy', '==', currentUser.uid));
+    }
+
     const unsubscribeAll = onSnapshot(allUsersQuery, (snapshot) => {
       const users: UserProfile[] = [];
       snapshot.forEach((doc) => {
         users.push({ uid: doc.id, ...doc.data() } as UserProfile);
       });
-      console.log('All users fetched:', users);
+      console.log('DEBUG [TenantDashboard] All users fetched:', users.length);
       setAllUsers(users);
-    console.log('DEBUG [TenantDashboard] All users fetched:', users.length);
-    console.log('DEBUG [TenantDashboard] First 5 users:', users.slice(0, 5));
     });
 
     return () => {
       unsubscribePending();
       unsubscribeAll();
     };
-  }, [isOpen]);
+  }, [isOpen, currentUser]);
 
   const handleApprove = async (user: UserProfile) => {
     if (!user.uid) return;

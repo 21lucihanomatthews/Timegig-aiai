@@ -44,6 +44,10 @@
         "updatedAt": {
           "type": "string",
           "description": "Server timestamp of last profile update"
+        },
+        "referredBy": {
+          "type": "string",
+          "description": "UID of the referring tenant"
         }
       },
       "required": ["uid", "email", "firstName", "surname", "termsAccepted"]
