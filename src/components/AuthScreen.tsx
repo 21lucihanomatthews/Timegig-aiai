@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -49,6 +49,18 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
+  const [referralCode, setReferralCode] = useState<string | null>(null);
+
+  // Check for referral code on mount
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get('ref');
+    if (ref) {
+      setReferralCode(ref);
+      // Optional: Clear URL params to keep it clean
+      // window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, []);
 
   // Validate Registration Form
   const isRegisterValid =
@@ -104,6 +116,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
         termsAccepted: true,
         termsAcceptedAt: new Date().toISOString(),
         subscriptionPlan: 'none',
+        referredBy: referralCode || undefined,
         createdAt: new Date().toISOString(),
       };
 
@@ -330,6 +343,13 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
             <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-start gap-2 animate-in fade-in">
               <CheckCircle className="w-4 h-4 shrink-0 mt-0.5 text-emerald-600" />
               <div className="leading-relaxed">{successMessage}</div>
+            </div>
+          )}
+
+          {referralCode && tab === 'register' && !successMessage && !errorMessage && (
+            <div className="p-3 rounded-xl bg-sky-50 border border-sky-200 text-sky-700 text-[10px] font-bold uppercase tracking-wider flex items-center gap-2 animate-in slide-in-from-top-2">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Referral Code Active</span>
             </div>
           )}
         </div>

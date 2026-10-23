@@ -128,7 +128,7 @@ export const TenantDashboard: React.FC<TenantDashboardProps> = ({
     revenue: allUsers.filter(u => u.verificationStatus === 'approved').length * 150 // Mock revenue: R150 per approved user
   };
 
-  const referrals = allUsers.filter(u => (u as any).referredBy === currentUser.uid);
+  const referrals = allUsers.filter(u => u.referredBy === currentUser.uid);
   const tenantPops = allUsers.filter(u => u.proofOfPaymentUrl && u.requestedPlan === 'tenant');
   const userPops = allUsers.filter(u => u.proofOfPaymentUrl && u.requestedPlan === 'user');
 
@@ -430,9 +430,17 @@ export const TenantDashboard: React.FC<TenantDashboardProps> = ({
                     <h3 className="text-sm font-black uppercase tracking-widest text-neutral-900 mb-2">Referral Link</h3>
                     <div className="flex items-center gap-3 bg-neutral-50 border border-neutral-200 p-4 rounded-2xl">
                       <code className="flex-1 text-[10px] font-bold text-neutral-500 truncate">
-                        https://timegig.app/ref/{currentUser.uid}
+                        {`${window.location.origin}?ref=${currentUser.uid}`}
                       </code>
-                      <button className="px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-[10px] font-black uppercase">Copy</button>
+                      <button 
+                        onClick={() => {
+                          navigator.clipboard.writeText(`${window.location.origin}?ref=${currentUser.uid}`);
+                          alert('Referral link copied to clipboard!');
+                        }}
+                        className="px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-[10px] font-black uppercase hover:bg-emerald-500 transition-colors"
+                      >
+                        Copy
+                      </button>
                     </div>
                   </div>
 
