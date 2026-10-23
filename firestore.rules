@@ -15,44 +15,15 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
-    function incoming() {
-      return request.resource.data;
-    }
-
-    function existing() {
-      return resource.data;
+    function isAdmin() {
+      return isSignedIn() && request.auth.token.email == '21lucihanomatthews@gmail.com';
     }
 
     function isValidId(id) {
       return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
     }
 
-    // --- User Validation ---
-    function isValidUser(data) {
-      let requiredFields = ['uid', 'email', 'firstName', 'surname', 'createdAt', 'updatedAt'];
-      let optionalFields = [
-        'dateOfBirth', 'contactNumber', 'location', 'socialLinks', 
-        'profilePictureUrl', 'idDocumentUrl', 'termsAccepted', 'termsAcceptedAt',
-        'subscriptionPlan', 'subscriptionType', 'isActive', 'updatedAtServer',
-        'trades', 'experience', 'references', 'referredBy'
-      ];
-      
-      return data.keys().hasAll(requiredFields)
-        && data.uid == request.auth.uid
-        && data.email == request.auth.token.email
-        && data.firstName is string && data.firstName.size() >= 1
-        && data.surname is string && data.surname.size() >= 1;
-    }
-
-    function isTenant() {
-      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.subscriptionPlan == 'tenant';
-    }
-
-    // --- Collections ---
-    function isAdmin() {
-      return isSignedIn() && request.auth.token.email == '21lucihanomatthews@gmail.com';
-    }
-
+    // --- Users Collection ---
     match /users/{userId} {
       allow get, list: if isSignedIn() && (
         isAdmin() || 
@@ -60,15 +31,20 @@ service cloud.firestore {
         resource.data.referredBy == request.auth.uid
       );
       
-      allow create: if isOwner(userId) 
-        && isValidUser(incoming())
-        && incoming().createdAt == request.time
-        && incoming().updatedAt == request.time;
+      allow create: if isOwner(userId);
       
-      allow update: if isAdmin() || (isOwner(userId) && isValidUser(incoming()))
-        || (isSignedIn() && resource.data.referredBy == request.auth.uid && incoming().diff(existing()).affectedKeys().hasOnly(['verificationStatus', 'rejectionReason', 'updatedAt']));
+      allow update: if isAdmin() 
+        || isOwner(userId)
+        || (
+          isSignedIn() 
+          && resource.data.referredBy == request.auth.uid 
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+            'verificationStatus', 'rejectionReason', 'subscriptionPlan', 'subscriptionEnd', 'referralVerified', 'updatedAt'
+          ])
+        );
     }
     
+    // --- Payments Collection ---
     match /payments/{paymentId} {
       allow read, write: if isSignedIn();
     }
