@@ -103,9 +103,12 @@ export const TenantDashboard: React.FC<TenantDashboardProps> = ({
     setIsProcessing(true);
     try {
       const userRef = doc(db, 'users', user.uid);
+      const subEnd = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
       await setDoc(userRef, { 
         verificationStatus: 'approved',
         subscriptionPlan: user.requestedPlan || 'user',
+        subscriptionEnd: subEnd,
+        referralVerified: true,
         updatedAt: new Date().toISOString()
       }, { merge: true });
       setSelectedUser(null);
@@ -539,10 +542,10 @@ export const TenantDashboard: React.FC<TenantDashboardProps> = ({
                       tenantPops
                         .filter(u => `${u.firstName} ${u.surname}`.toLowerCase().includes(searchQuery.toLowerCase()))
                         .map((user) => (
-                          <div key={user.uid} className="bg-white border border-neutral-200 rounded-[2rem] p-4 shadow-sm">
-                            <div className="flex items-center justify-between mb-4">
+                          <div key={user.uid} className="bg-white border border-neutral-200 rounded-[2rem] p-4 shadow-sm space-y-3">
+                            <div className="flex items-center justify-between">
                               <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-xl bg-neutral-100 overflow-hidden">
+                                <div className="w-10 h-10 rounded-xl bg-neutral-100 overflow-hidden shrink-0">
                                   {user.profilePictureUrl ? <img src={user.profilePictureUrl} className="w-full h-full object-cover" /> : <User className="w-5 h-5 m-2.5 text-neutral-300" />}
                                 </div>
                                 <div>
@@ -550,21 +553,59 @@ export const TenantDashboard: React.FC<TenantDashboardProps> = ({
                                   <div className="text-[10px] text-neutral-500 font-bold uppercase tracking-tighter">{user.email}</div>
                                 </div>
                               </div>
-                              <button 
-                                onClick={() => user.proofOfPaymentUrl && setZoomedImage(user.proofOfPaymentUrl)}
-                                className="p-2 bg-emerald-50 text-emerald-600 rounded-xl hover:bg-emerald-100 transition-colors"
-                              >
-                                <Eye className="w-5 h-5" />
-                              </button>
+                              <div className="flex items-center gap-2">
+                                <span className={`px-2.5 py-1 rounded-full text-[9px] font-black uppercase ${
+                                  user.verificationStatus === 'approved' ? 'bg-emerald-100 text-emerald-700' :
+                                  user.verificationStatus === 'rejected' ? 'bg-rose-100 text-rose-700' :
+                                  'bg-amber-100 text-amber-700'
+                                }`}>
+                                  {user.verificationStatus || 'pending'}
+                                </span>
+                                <button 
+                                  onClick={() => user.proofOfPaymentUrl && setZoomedImage(user.proofOfPaymentUrl)}
+                                  className="p-2 bg-emerald-50 text-emerald-600 rounded-xl hover:bg-emerald-100 transition-colors"
+                                  title="Zoom Proof of Payment"
+                                >
+                                  <Eye className="w-5 h-5" />
+                                </button>
+                              </div>
                             </div>
+
                             <div 
                               onClick={() => user.proofOfPaymentUrl && setZoomedImage(user.proofOfPaymentUrl)}
                               className="aspect-[4/1] bg-neutral-50 rounded-xl overflow-hidden cursor-zoom-in relative group"
                             >
-                              <img src={user.proofOfPaymentUrl} className="w-full h-full object-cover opacity-50 group-hover:opacity-100 transition-opacity" alt="Tenant PoP" />
+                              <img src={user.proofOfPaymentUrl} className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity" alt="Tenant PoP" />
                               <div className="absolute inset-0 flex items-center justify-center bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity">
                                 <span className="text-[10px] font-black uppercase text-neutral-900 bg-white/90 px-3 py-1.5 rounded-lg shadow-sm">View Document</span>
                               </div>
+                            </div>
+
+                            {user.verificationStatus === 'rejected' && user.rejectionReason && (
+                              <div className="p-2.5 bg-rose-50 border border-rose-200 rounded-xl text-[10px] text-rose-700 font-bold">
+                                Reason: {user.rejectionReason}
+                              </div>
+                            )}
+
+                            {/* Action Buttons */}
+                            <div className="flex gap-2 pt-1 border-t border-neutral-100">
+                              <button
+                                onClick={() => {
+                                  setSelectedUser(user);
+                                  setShowRejectForm(true);
+                                }}
+                                disabled={isProcessing}
+                                className="flex-1 py-2 bg-white border border-rose-200 text-rose-600 rounded-xl text-[10px] font-black uppercase tracking-wider flex items-center justify-center gap-1 hover:bg-rose-50 transition-colors"
+                              >
+                                <XCircle className="w-3.5 h-3.5" /> Reject
+                              </button>
+                              <button
+                                onClick={() => handleApprove(user)}
+                                disabled={isProcessing}
+                                className="flex-1 py-2 bg-emerald-600 text-white rounded-xl text-[10px] font-black uppercase tracking-wider flex items-center justify-center gap-1 hover:bg-emerald-500 transition-colors shadow-sm"
+                              >
+                                <CheckCircle2 className="w-3.5 h-3.5" /> Approve Tenant PoP
+                              </button>
                             </div>
                           </div>
                         ))
@@ -597,10 +638,10 @@ export const TenantDashboard: React.FC<TenantDashboardProps> = ({
                       userPops
                         .filter(u => `${u.firstName} ${u.surname}`.toLowerCase().includes(searchQuery.toLowerCase()))
                         .map((user) => (
-                          <div key={user.uid} className="bg-white border border-neutral-200 rounded-[2rem] p-4 shadow-sm">
-                            <div className="flex items-center justify-between mb-4">
+                          <div key={user.uid} className="bg-white border border-neutral-200 rounded-[2rem] p-4 shadow-sm space-y-3">
+                            <div className="flex items-center justify-between">
                               <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-xl bg-neutral-100 overflow-hidden">
+                                <div className="w-10 h-10 rounded-xl bg-neutral-100 overflow-hidden shrink-0">
                                   {user.profilePictureUrl ? <img src={user.profilePictureUrl} className="w-full h-full object-cover" /> : <User className="w-5 h-5 m-2.5 text-neutral-300" />}
                                 </div>
                                 <div>
@@ -608,21 +649,59 @@ export const TenantDashboard: React.FC<TenantDashboardProps> = ({
                                   <div className="text-[10px] text-neutral-500 font-bold uppercase tracking-tighter">{user.email}</div>
                                 </div>
                               </div>
-                              <button 
-                                onClick={() => user.proofOfPaymentUrl && setZoomedImage(user.proofOfPaymentUrl)}
-                                className="p-2 bg-emerald-50 text-emerald-600 rounded-xl hover:bg-emerald-100 transition-colors"
-                              >
-                                <Eye className="w-5 h-5" />
-                              </button>
+                              <div className="flex items-center gap-2">
+                                <span className={`px-2.5 py-1 rounded-full text-[9px] font-black uppercase ${
+                                  user.verificationStatus === 'approved' ? 'bg-emerald-100 text-emerald-700' :
+                                  user.verificationStatus === 'rejected' ? 'bg-rose-100 text-rose-700' :
+                                  'bg-amber-100 text-amber-700'
+                                }`}>
+                                  {user.verificationStatus || 'pending'}
+                                </span>
+                                <button 
+                                  onClick={() => user.proofOfPaymentUrl && setZoomedImage(user.proofOfPaymentUrl)}
+                                  className="p-2 bg-emerald-50 text-emerald-600 rounded-xl hover:bg-emerald-100 transition-colors"
+                                  title="Zoom Proof of Payment"
+                                >
+                                  <Eye className="w-5 h-5" />
+                                </button>
+                              </div>
                             </div>
+
                             <div 
                               onClick={() => user.proofOfPaymentUrl && setZoomedImage(user.proofOfPaymentUrl)}
                               className="aspect-[4/1] bg-neutral-50 rounded-xl overflow-hidden cursor-zoom-in relative group"
                             >
-                              <img src={user.proofOfPaymentUrl} className="w-full h-full object-cover opacity-50 group-hover:opacity-100 transition-opacity" alt="User PoP" />
+                              <img src={user.proofOfPaymentUrl} className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity" alt="User PoP" />
                               <div className="absolute inset-0 flex items-center justify-center bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity">
                                 <span className="text-[10px] font-black uppercase text-neutral-900 bg-white/90 px-3 py-1.5 rounded-lg shadow-sm">View Document</span>
                               </div>
+                            </div>
+
+                            {user.verificationStatus === 'rejected' && user.rejectionReason && (
+                              <div className="p-2.5 bg-rose-50 border border-rose-200 rounded-xl text-[10px] text-rose-700 font-bold">
+                                Reason: {user.rejectionReason}
+                              </div>
+                            )}
+
+                            {/* Action Buttons */}
+                            <div className="flex gap-2 pt-1 border-t border-neutral-100">
+                              <button
+                                onClick={() => {
+                                  setSelectedUser(user);
+                                  setShowRejectForm(true);
+                                }}
+                                disabled={isProcessing}
+                                className="flex-1 py-2 bg-white border border-rose-200 text-rose-600 rounded-xl text-[10px] font-black uppercase tracking-wider flex items-center justify-center gap-1 hover:bg-rose-50 transition-colors"
+                              >
+                                <XCircle className="w-3.5 h-3.5" /> Reject
+                              </button>
+                              <button
+                                onClick={() => handleApprove(user)}
+                                disabled={isProcessing}
+                                className="flex-1 py-2 bg-emerald-600 text-white rounded-xl text-[10px] font-black uppercase tracking-wider flex items-center justify-center gap-1 hover:bg-emerald-500 transition-colors shadow-sm"
+                              >
+                                <CheckCircle2 className="w-3.5 h-3.5" /> Approve User PoP
+                              </button>
                             </div>
                           </div>
                         ))

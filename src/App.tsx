@@ -81,7 +81,13 @@ export default function App() {
           const docRef = doc(db, 'users', currentUser.uid);
           const docSnap = await getDoc(docRef);
           if (docSnap.exists()) {
-            setUserProfile(docSnap.data() as UserProfile);
+            const prof = docSnap.data() as UserProfile;
+            setUserProfile(prof);
+            if (!prof.referralVerified && prof.verificationStatus !== 'approved') {
+              setActiveBottomTab('activation');
+            }
+          } else {
+            setActiveBottomTab('activation');
           }
         } catch (err) {
           console.warn('Profile fetch error:', err);
@@ -97,6 +103,9 @@ export default function App() {
   const handleAuthenticated = (firebaseUser: FirebaseUser, profile: UserProfile) => {
     setUser(firebaseUser);
     setUserProfile(profile);
+    if (!profile.referralVerified && profile.verificationStatus !== 'approved') {
+      setActiveBottomTab('activation');
+    }
   };
 
   const handleSelectBottomTab = (tab: 'activation' | 'profile' | 'tenant') => {
