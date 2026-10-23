@@ -130,8 +130,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
         console.warn('Could not write to firestore immediately:', err);
       }
 
-      // Also persist to localStorage for offline resilience
-      localStorage.setItem(`user_profile_${user.uid}`, JSON.stringify(userProfile));
+
 
       setSuccessMessage('Account created successfully! Welcome to the app.');
       setTimeout(() => {
@@ -139,25 +138,6 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
           onAuthenticated(user, userProfile);
         }
       }, 500);
-    } catch (err: unknown) {
-      console.error('Registration error:', err);
-      const errCode = (err as { code?: string })?.code;
-      if (errCode === 'auth/email-already-in-use') {
-        setErrorMessage(
-          'This email is already registered. Please click the "Log In" tab above to sign in.'
-        );
-      } else if (errCode === 'auth/weak-password') {
-        setErrorMessage('Password should be at least 6 characters.');
-      } else if (errCode === 'auth/invalid-email') {
-        setErrorMessage('Please enter a valid email address.');
-      } else if (errCode === 'auth/operation-not-allowed') {
-        // Fallback if Email/Password provider isn't enabled in console
-        handleDemoFallback('register');
-      } else {
-        setErrorMessage(
-          (err as Error)?.message || 'Registration failed. Please check your details and try again.'
-        );
-      }
     } finally {
       setIsLoading(false);
     }
@@ -195,29 +175,16 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
         console.warn('Could not read user profile from firestore:', err);
       }
 
-      if (!profile) {
-        const cached = localStorage.getItem(`user_profile_${user.uid}`);
-        if (cached) {
-          profile = JSON.parse(cached);
-        } else {
-          const names = (user.displayName || 'App User').split(' ');
-          profile = {
-            uid: user.uid,
-            email: user.email || email.trim(),
-            firstName: names[0] || 'User',
-            surname: names.slice(1).join(' ') || '',
-            termsAccepted: true,
-            subscriptionPlan: 'none',
-          };
-        }
+      if (profile) {
+        setSuccessMessage('Logged in successfully!');
+        setTimeout(() => {
+          if (typeof onAuthenticated === 'function') {
+            onAuthenticated(user, profile!);
+          }
+        }, 500);
+      } else {
+        setErrorMessage('User profile not found. Please register or contact support.');
       }
-
-      setSuccessMessage('Logged in successfully!');
-      setTimeout(() => {
-        if (typeof onAuthenticated === 'function') {
-          onAuthenticated(user, profile!);
-        }
-      }, 500);
     } catch (err: unknown) {
       console.error('Login error:', err);
       const errCode = (err as { code?: string })?.code;
@@ -231,8 +198,6 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
         );
       } else if (errCode === 'auth/invalid-email') {
         setErrorMessage('Please enter a valid email address.');
-      } else if (errCode === 'auth/operation-not-allowed') {
-        handleDemoFallback('login');
       } else {
         setErrorMessage(
           (err as Error)?.message || 'Login failed. Please check your connection and credentials.'
@@ -241,40 +206,6 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  // Graceful fallback helper if Email/Password is not enabled in Firebase Console yet
-  const handleDemoFallback = (action: 'register' | 'login') => {
-    const mockUid = 'user_' + Math.random().toString(36).substring(2, 9);
-    const mockUser = {
-      uid: mockUid,
-      email: email.trim() || 'user@example.com',
-      displayName: `${firstName || 'Lucian'} ${surname || 'Matthews'}`,
-    } as FirebaseUser;
-
-    const mockProfile: UserProfile = {
-      uid: mockUid,
-      email: email.trim() || 'user@example.com',
-      firstName: firstName.trim() || 'Lucian',
-      surname: surname.trim() || 'Matthews',
-      termsAccepted: true,
-      termsAcceptedAt: new Date().toISOString(),
-      subscriptionPlan: 'none',
-      createdAt: new Date().toISOString(),
-    };
-
-    localStorage.setItem(`user_profile_${mockUid}`, JSON.stringify(mockProfile));
-    setSuccessMessage(
-      action === 'register'
-        ? 'Account registered successfully!'
-        : 'Logged in successfully!'
-    );
-
-    setTimeout(() => {
-      if (typeof onAuthenticated === 'function') {
-        onAuthenticated(mockUser, mockProfile);
-      }
-    }, 600);
   };
 
   return (

@@ -263,6 +263,8 @@ export interface UserProfile {
   subscriptionPlan?: 'none' | 'tenant' | 'user';
   requestedPlan?: 'none' | 'tenant' | 'user';
   referredBy?: string;
+  subscriptionEnd?: string;
+  referralVerified?: boolean;
   createdAt?: string | any;
   updatedAt?: string | any;
   updatedAtServer?: any;

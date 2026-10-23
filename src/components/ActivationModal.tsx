@@ -408,6 +408,15 @@ export const ActivationModal: React.FC<ActivationModalProps> = ({
 
       {/* 2. Full Screen Scrollable Body Content */}
       <main className="flex-1 overflow-y-auto p-5 sm:p-8 flex flex-col items-center">
+        {userProfile && userProfile.referralVerified && userProfile.subscriptionEnd && new Date(userProfile.subscriptionEnd) > new Date() ? (
+          <div className="my-auto py-12 text-center text-neutral-500">
+            <div className="w-20 h-20 rounded-full bg-neutral-100 flex items-center justify-center mx-auto mb-4">
+              <CheckCircle2 className="w-10 h-10 text-emerald-600" />
+            </div>
+            <h3 className="text-lg font-bold text-neutral-900">Account Already Active</h3>
+            <p className="text-xs mt-2">Your account is verified and your subscription is active until {new Date(userProfile.subscriptionEnd).toLocaleDateString()}.</p>
+          </div>
+        ) : (
         <div className="max-w-md w-full mx-auto flex-1 flex flex-col">
           {/* ================= STEP 1: SELECT SUBSCRIPTION ================= */}
           {step === 'select' && (
@@ -1007,6 +1016,7 @@ export const ActivationModal: React.FC<ActivationModalProps> = ({
             </div>
           )}
         </div>
+        )}
       </main>
 
       {/* Camera Overlay */}

@@ -484,9 +484,20 @@ export const TenantDashboard: React.FC<TenantDashboardProps> = ({
                               <div className="text-[10px] text-neutral-500">{user.email}</div>
                             </div>
                           </div>
-                          <div className={`px-3 py-1 rounded-full text-[9px] font-black uppercase ${user.verificationStatus === 'approved' ? 'bg-emerald-100 text-emerald-700' : 'bg-neutral-100 text-neutral-500'}`}>
-                            {user.verificationStatus}
+                          <div className={`px-3 py-1 rounded-full text-[9px] font-black uppercase flex items-center gap-1 ${user.verificationStatus === 'approved' ? 'bg-emerald-100 text-emerald-700' : 'bg-neutral-100 text-neutral-500'}`}>
+                            {user.referralVerified && <CheckCircle2 className="w-3 h-3" />}
+                            {user.referralVerified ? 'Verified Referral' : user.verificationStatus}
                           </div>
+                          {!user.referralVerified && (
+                            <button
+                              onClick={async () => {
+                                await setDoc(doc(db, 'users', user.uid), { referralVerified: true, updatedAt: new Date().toISOString() }, { merge: true });
+                              }}
+                              className="ml-2 px-3 py-1 bg-emerald-600 text-white rounded-full text-[9px] font-black uppercase hover:bg-emerald-500 transition-colors"
+                            >
+                              Verify
+                            </button>
+                          )}
                         </div>
                       ))
                     )}

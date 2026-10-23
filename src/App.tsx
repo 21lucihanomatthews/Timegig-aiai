@@ -82,12 +82,6 @@ export default function App() {
           const docSnap = await getDoc(docRef);
           if (docSnap.exists()) {
             setUserProfile(docSnap.data() as UserProfile);
-          } else {
-            // Check local storage for offline fallback
-            const cached = localStorage.getItem(`user_profile_${currentUser.uid}`);
-            if (cached) {
-              setUserProfile(JSON.parse(cached));
-            }
           }
         } catch (err) {
           console.warn('Profile fetch error:', err);
