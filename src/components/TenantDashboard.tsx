@@ -73,6 +73,8 @@ export const TenantDashboard: React.FC<TenantDashboardProps> = ({
       });
       console.log('All users fetched:', users);
       setAllUsers(users);
+    console.log('DEBUG [TenantDashboard] All users fetched:', users.length);
+    console.log('DEBUG [TenantDashboard] First 5 users:', users.slice(0, 5));
     });
 
     return () => {
@@ -131,7 +133,11 @@ export const TenantDashboard: React.FC<TenantDashboardProps> = ({
     revenue: allUsers.filter(u => u.verificationStatus === 'approved').length * 150 // Mock revenue: R150 per approved user
   };
 
-  const referrals = allUsers.filter(u => u.referredBy === currentUser.uid);
+  console.log('DEBUG [TenantDashboard] Current User UID:', currentUser?.uid);
+  const referrals = allUsers.filter(u => u.referredBy === currentUser?.uid);
+  console.log('DEBUG [TenantDashboard] Referrals count:', referrals.length);
+  console.log('DEBUG [TenantDashboard] All users referredBy values:', allUsers.map(u => u.referredBy));
+  
   const tenantPops = allUsers.filter(u => u.proofOfPaymentUrl && u.requestedPlan === 'tenant');
   const userPops = allUsers.filter(u => u.proofOfPaymentUrl && u.requestedPlan === 'user');
 

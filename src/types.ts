@@ -263,7 +263,7 @@ export interface UserProfile {
   subscriptionPlan?: 'none' | 'tenant' | 'user';
   requestedPlan?: 'none' | 'tenant' | 'user';
   referredBy?: string;
-  createdAt?: string;
-  updatedAt?: string;
+  createdAt?: string | any;
+  updatedAt?: string | any;
   updatedAtServer?: any;
 }

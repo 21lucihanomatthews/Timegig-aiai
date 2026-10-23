@@ -34,7 +34,7 @@ service cloud.firestore {
         'dateOfBirth', 'contactNumber', 'location', 'socialLinks', 
         'profilePictureUrl', 'idDocumentUrl', 'termsAccepted', 'termsAcceptedAt',
         'subscriptionPlan', 'subscriptionType', 'isActive', 'updatedAtServer',
-        'trades', 'experience', 'references'
+        'trades', 'experience', 'references', 'referredBy'
       ];
       
       return data.keys().hasAll(requiredFields)

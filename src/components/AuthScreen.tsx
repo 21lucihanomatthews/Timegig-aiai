@@ -117,14 +117,14 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
         termsAcceptedAt: new Date().toISOString(),
         subscriptionPlan: 'none',
         referredBy: referralCode || undefined,
-        createdAt: new Date().toISOString(),
+        createdAt: serverTimestamp() as any,
+        updatedAt: serverTimestamp() as any,
       };
 
       try {
         console.log('Registering user:', user.uid, 'with referral code:', referralCode);
         await setDoc(doc(db, 'users', user.uid), {
           ...userProfile,
-          createdAtServer: serverTimestamp(),
         });
       } catch (err) {
         console.warn('Could not write to firestore immediately:', err);
