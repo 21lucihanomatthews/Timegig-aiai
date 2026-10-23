@@ -1,0 +1,131 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "Registered user account profile with personal details and subscription status",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "Unique Firebase Authentication user ID"
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "User email address"
+        },
+        "firstName": {
+          "type": "string",
+          "description": "First name of the user",
+          "maxLength": 100
+        },
+        "surname": {
+          "type": "string",
+          "description": "Surname / last name of the user",
+          "maxLength": 100
+        },
+        "termsAccepted": {
+          "type": "boolean",
+          "description": "Whether the user accepted terms and conditions during registration"
+        },
+        "termsAcceptedAt": {
+          "type": "string",
+          "description": "ISO timestamp of terms acceptance"
+        },
+        "subscriptionPlan": {
+          "type": "string",
+          "enum": ["none", "tenant", "user"],
+          "description": "Active subscription tier"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Server timestamp of registration"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Server timestamp of last profile update"
+        }
+      },
+      "required": ["uid", "email", "firstName", "surname", "termsAccepted"]
+    },
+    "PaymentSubmission": {
+      "title": "Payment Submission",
+      "description": "Proof of payment submission for Tenant or User subscription",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique payment record ID"
+        },
+        "userId": {
+          "type": "string",
+          "description": "UID of the user who submitted the proof of payment"
+        },
+        "userEmail": {
+          "type": "string",
+          "format": "email",
+          "description": "Email address of the paying user"
+        },
+        "subscriptionType": {
+          "type": "string",
+          "enum": ["tenant", "user"],
+          "description": "Subscription tier selected (tenant or user)"
+        },
+        "paymentReference": {
+          "type": "string",
+          "enum": ["Ten29", "User29"],
+          "description": "Payment reference used for Capitec EFT"
+        },
+        "amountZar": {
+          "type": "number",
+          "description": "Payment amount in South African Rand (299.99 or 29.99)"
+        },
+        "documentName": {
+          "type": "string",
+          "description": "File name of uploaded proof of payment document",
+          "maxLength": 255
+        },
+        "documentSize": {
+          "type": "string",
+          "description": "File size label of uploaded proof of payment document"
+        },
+        "bank": {
+          "type": "string",
+          "description": "Target bank name (Capitec)"
+        },
+        "accountName": {
+          "type": "string",
+          "description": "Target bank account name (Matthews)"
+        },
+        "accountNumber": {
+          "type": "string",
+          "description": "Target bank account number (1334067366)"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["pending", "verified", "rejected"],
+          "description": "Status of the payment verification"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp of payment proof submission"
+        }
+      },
+      "required": ["id", "userId", "subscriptionType", "paymentReference", "documentName", "status"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": {
+        "$ref": "#/entities/User"
+      },
+      "description": "Collection of user profile records indexed by auth UID"
+    },
+    "/payments/{paymentId}": {
+      "schema": {
+        "$ref": "#/entities/PaymentSubmission"
+      },
+      "description": "Collection of subscription proof of payment submissions"
+    }
+  }
+}

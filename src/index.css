@@ -1,0 +1,118 @@
+@import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: #09090b;
+    color: #f4f4f5;
+  }
+  .font-mono, .tabular-nums {
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* Custom Leaflet overrides */
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  font-family: inherit;
+  background-color: #121214;
+  outline: none;
+  z-index: 1 !important;
+}
+
+/* Completely hide Leaflet OpenStreetMap contributors as requested */
+.leaflet-control-attribution {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Search bar floating container guaranteed to sit above all Leaflet map panes */
+.search-floating-container {
+  z-index: 9999 !important;
+  pointer-events: auto !important;
+}
+
+/* Zoom controls floating container guaranteed to sit above all Leaflet map panes */
+.zoom-floating-container {
+  z-index: 9999 !important;
+  pointer-events: auto !important;
+}
+
+/* Custom modern popup */
+.leaflet-popup-content-wrapper {
+  background: rgba(18, 18, 23, 0.96) !important;
+  color: #f4f4f5 !important;
+  border-radius: 12px !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.3) !important;
+  padding: 4px !important;
+  backdrop-filter: blur(8px);
+}
+
+.leaflet-popup-tip {
+  background: rgba(18, 18, 23, 0.96) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+}
+
+.leaflet-popup-content {
+  margin: 10px 14px !important;
+  line-height: 1.4 !important;
+}
+
+.leaflet-container a.leaflet-popup-close-button {
+  color: #a1a1aa !important;
+  padding: 8px !important;
+  top: 4px !important;
+  right: 4px !important;
+}
+.leaflet-container a.leaflet-popup-close-button:hover {
+  color: #ffffff !important;
+}
+
+/* User Location Pulsing radar point */
+@keyframes radar-pulse {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.9;
+  }
+  70% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+
+.radar-ring {
+  animation: radar-pulse 2s cubic-bezier(0.2, 0.8, 0.2, 1) infinite;
+}
+
+/* Search pin bounce animation on drop */
+@keyframes pin-drop {
+  0% {
+    transform: translateY(-20px) scale(0.8);
+    opacity: 0;
+  }
+  60% {
+    transform: translateY(2px) scale(1.05);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.search-pin-animated {
+  animation: pin-drop 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}

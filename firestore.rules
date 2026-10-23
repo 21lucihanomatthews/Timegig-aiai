@@ -1,0 +1,61 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 1. Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Global Helpers ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // --- User Validation ---
+    function isValidUser(data) {
+      let requiredFields = ['uid', 'email', 'firstName', 'surname', 'createdAt', 'updatedAt'];
+      let optionalFields = [
+        'dateOfBirth', 'contactNumber', 'location', 'socialLinks', 
+        'profilePictureUrl', 'idDocumentUrl', 'termsAccepted', 'termsAcceptedAt',
+        'subscriptionPlan', 'subscriptionType', 'isActive', 'updatedAtServer',
+        'trades', 'experience', 'references'
+      ];
+      
+      return data.keys().hasAll(requiredFields)
+        && data.uid == request.auth.uid
+        && data.email == request.auth.token.email
+        && data.firstName is string && data.firstName.size() >= 1
+        && data.surname is string && data.surname.size() >= 1;
+    }
+
+    // --- Collections ---
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow create: if isOwner(userId) 
+        && isValidUser(incoming())
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      
+      allow update: if isOwner(userId)
+        && isValidUser(incoming())
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time;
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "OpenMap Studio - OpenStreetMap Template",
+  "description": "Interactive zero-API-cost mapping template built on OpenStreetMap with multi-tile switching, POI markers, route planning, Nominatim search, measurements, and GeoJSON import/export.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
