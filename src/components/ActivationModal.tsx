@@ -301,6 +301,7 @@ export const ActivationModal: React.FC<ActivationModalProps> = ({
         const userDocRef = doc(db, 'users', currentUser.uid);
         const updatedProfileData: Partial<UserProfile> = {
           verificationStatus: 'pending',
+          requestedPlan: selectedPlan,
           updatedAt: new Date().toISOString(),
         };
 

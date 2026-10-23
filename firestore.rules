@@ -50,8 +50,8 @@ service cloud.firestore {
 
     // --- Collections ---
     match /users/{userId} {
-      allow get: if isOwner(userId) || isTenant();
-      allow list: if isTenant();
+      allow get: if isSignedIn();
+      allow list: if isSignedIn();
       
       allow create: if isOwner(userId) 
         && isValidUser(incoming())
@@ -59,7 +59,7 @@ service cloud.firestore {
         && incoming().updatedAt == request.time;
       
       allow update: if (isOwner(userId) && isValidUser(incoming()))
-        || (isTenant() && incoming().diff(existing()).affectedKeys().hasOnly(['verificationStatus', 'rejectionReason', 'updatedAt']));
+        || (isSignedIn() && incoming().diff(existing()).affectedKeys().hasOnly(['verificationStatus', 'rejectionReason', 'subscriptionPlan', 'requestedPlan', 'updatedAt']));
     }
     
     match /payments/{paymentId} {

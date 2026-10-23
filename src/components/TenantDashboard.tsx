@@ -65,6 +65,7 @@ export const TenantDashboard: React.FC<TenantDashboardProps> = ({
       const userRef = doc(db, 'users', user.uid);
       await setDoc(userRef, { 
         verificationStatus: 'approved',
+        subscriptionPlan: user.requestedPlan || 'user',
         updatedAt: new Date().toISOString()
       }, { merge: true });
       setSelectedUser(null);

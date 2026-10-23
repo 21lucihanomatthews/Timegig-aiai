@@ -69,47 +69,43 @@ export const BottomMenuBar: React.FC<BottomMenuBarProps> = ({
           </span>
         </button>
 
-        {isTenantUser && (
-          <>
-            <div className="h-8 w-px bg-neutral-200/80 my-auto" />
-            <button
-              type="button"
-              onClick={() => onSelectTab('tenant')}
-              className={`flex-1 flex flex-col items-center justify-center py-1.5 px-3 rounded-xl transition-all group ${
-                activeTab === 'tenant'
-                  ? 'text-emerald-600'
-                  : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-50'
+        <div className="h-8 w-px bg-neutral-200/80 my-auto" />
+        <button
+          type="button"
+          onClick={() => onSelectTab('tenant')}
+          className={`flex-1 flex flex-col items-center justify-center py-1.5 px-3 rounded-xl transition-all group ${
+            activeTab === 'tenant'
+              ? 'text-emerald-600'
+              : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-50'
+          }`}
+          title="Tenant Dashboard"
+          aria-label="Tenant"
+        >
+          <div className="relative flex items-center justify-center">
+            <div
+              className={`p-1 rounded-xl transition-colors ${
+                activeTab === 'tenant' ? 'bg-emerald-50' : 'group-hover:bg-neutral-100'
               }`}
-              title="Tenant Dashboard"
-              aria-label="Tenant"
             >
-              <div className="relative flex items-center justify-center">
-                <div
-                  className={`p-1 rounded-xl transition-colors ${
-                    activeTab === 'tenant' ? 'bg-emerald-50' : 'group-hover:bg-neutral-100'
-                  }`}
-                >
-                  <Building2
-                    className={`w-5 h-5 stroke-[2.2] transition-colors ${
-                      activeTab === 'tenant'
-                        ? 'text-emerald-600'
-                        : 'text-neutral-600 group-hover:text-neutral-900'
-                    }`}
-                  />
-                </div>
-              </div>
-              <span
-                className={`text-[11px] sm:text-xs mt-0.5 tracking-tight transition-colors ${
+              <Building2
+                className={`w-5 h-5 stroke-[2.2] transition-colors ${
                   activeTab === 'tenant'
-                    ? 'font-bold text-emerald-700'
-                    : 'font-medium text-neutral-600 group-hover:text-neutral-900'
+                    ? 'text-emerald-600'
+                    : 'text-neutral-600 group-hover:text-neutral-900'
                 }`}
-              >
-                Tenant
-              </span>
-            </button>
-          </>
-        )}
+              />
+            </div>
+          </div>
+          <span
+            className={`text-[11px] sm:text-xs mt-0.5 tracking-tight transition-colors ${
+              activeTab === 'tenant'
+                ? 'font-bold text-emerald-700'
+                : 'font-medium text-neutral-600 group-hover:text-neutral-900'
+            }`}
+          >
+            Tenant
+          </span>
+        </button>
 
         {/* Subtle divider */}
         <div className="h-8 w-px bg-neutral-200/80 my-auto" />

@@ -261,6 +261,7 @@ export interface UserProfile {
   termsAccepted: boolean;
   termsAcceptedAt?: string;
   subscriptionPlan?: 'none' | 'tenant' | 'user';
+  requestedPlan?: 'none' | 'tenant' | 'user';
   createdAt?: string;
   updatedAt?: string;
   updatedAtServer?: any;
