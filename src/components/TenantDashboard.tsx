@@ -277,10 +277,10 @@ export const TenantDashboard: React.FC<TenantDashboardProps> = ({
                           <button
                             key={user.uid}
                             onClick={() => setSelectedUser(user)}
-                            className="w-full bg-white/80 border border-neutral-200 rounded-3xl p-4 flex items-center justify-between hover:border-emerald-500 hover:bg-white transition-all group shadow-sm active:scale-[0.98]"
+                            className="w-full bg-white/80 border border-neutral-200 rounded-2xl p-3 flex items-center justify-between hover:border-emerald-500 hover:bg-white transition-all group shadow-sm active:scale-[0.98]"
                           >
-                            <div className="flex items-center gap-4">
-                              <div className="w-14 h-14 rounded-2xl overflow-hidden bg-neutral-100 border border-neutral-200 shrink-0 shadow-inner">
+                            <div className="flex items-center gap-3">
+                              <div className="w-12 h-12 rounded-xl overflow-hidden bg-neutral-100 border border-neutral-200 shrink-0 shadow-inner">
                                 {user.selfieUrl || user.profilePictureUrl ? (
                                   <img src={user.selfieUrl || user.profilePictureUrl} alt="" className="w-full h-full object-cover" />
                                 ) : (
@@ -290,10 +290,10 @@ export const TenantDashboard: React.FC<TenantDashboardProps> = ({
                                 )}
                               </div>
                               <div className="text-left">
-                                <div className="text-sm font-black text-neutral-900 uppercase tracking-tight">
+                                <div className="text-xs font-black text-neutral-900 uppercase tracking-tight">
                                   {user.firstName} {user.surname}
                                 </div>
-                                <div className="text-[10px] text-neutral-400 font-medium mb-1.5">{user.email}</div>
+                                <div className="text-[10px] text-neutral-400 font-medium mb-1">{user.email}</div>
                                 <div className="flex items-center gap-2">
                                   <span className={`px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-wider ${
                                     user.requestedPlan === 'tenant' 

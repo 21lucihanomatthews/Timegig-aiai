@@ -599,11 +599,11 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                     <div key={i} className="relative pl-6 border-l-2 border-neutral-100 pb-2 last:pb-0">
                       <div className="absolute left-[-9px] top-0 w-4 h-4 rounded-full bg-sky-100 border-2 border-white shadow-sm" />
                       <div className="flex justify-between items-start mb-1">
-                        <h4 className="text-sm font-black text-neutral-900">{exp.role}</h4>
-                        <span className="text-[10px] font-bold text-neutral-400 uppercase">{exp.period}</span>
+                        <h4 className="text-sm font-black text-black">{exp.role}</h4>
+                        <span className="text-[10px] font-bold text-black uppercase">{exp.period}</span>
                       </div>
-                      <p className="text-xs font-bold text-sky-700 mb-2">{exp.company}</p>
-                      <p className="text-xs text-neutral-600 leading-relaxed">{exp.description}</p>
+                      <p className="text-xs font-bold text-black mb-2">{exp.company}</p>
+                      <p className="text-xs text-black leading-relaxed">{exp.description}</p>
                     </div>
                   )) : (
                     <p className="text-xs text-neutral-400 italic text-center">No experience added yet.</p>
