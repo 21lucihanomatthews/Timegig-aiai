@@ -25,6 +25,7 @@ import {
   FileText,
   Loader2,
   Sparkles,
+  ArrowLeft,
 } from 'lucide-react';
 
 interface AuthScreenProps {
