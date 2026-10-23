@@ -28,6 +28,7 @@ import {
   Users,
   Award,
   AlertCircle,
+  CheckCircle2,
 } from 'lucide-react';
 import { User as FirebaseUser, signOut, updateProfile } from 'firebase/auth';
 import { doc, updateDoc, serverTimestamp, getDoc } from 'firebase/firestore';
@@ -518,9 +519,33 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                       </div>
                       <div>
                         <span className="text-[9px] font-bold text-neutral-400 uppercase tracking-wider block mb-0.5">Valid Thru</span>
-                        <span className="text-xs font-black text-emerald-600 uppercase tracking-wider">Active</span>
+                        <div className="flex items-center gap-1.5">
+                          <span className={`text-xs font-black uppercase tracking-wider ${
+                            userProfile?.verificationStatus === 'approved' ? 'text-emerald-600' :
+                            userProfile?.verificationStatus === 'pending' ? 'text-amber-500' :
+                            userProfile?.verificationStatus === 'rejected' ? 'text-rose-600' :
+                            'text-neutral-400'
+                          }`}>
+                            {userProfile?.verificationStatus === 'approved' ? 'Active' :
+                             userProfile?.verificationStatus === 'pending' ? 'Pending' :
+                             userProfile?.verificationStatus === 'rejected' ? 'Rejected' :
+                             'Inactive'}
+                          </span>
+                          {userProfile?.verificationStatus === 'approved' && (
+                            <CheckCircle2 className="w-3 h-3 text-emerald-500" />
+                          )}
+                        </div>
                       </div>
                     </div>
+
+                    {userProfile?.verificationStatus === 'rejected' && userProfile.rejectionReason && (
+                      <div className="mt-2 p-2 bg-rose-50 border border-rose-100 rounded-xl flex items-start gap-2 animate-in fade-in">
+                        <AlertCircle className="w-3 h-3 text-rose-500 shrink-0 mt-0.5" />
+                        <p className="text-[9px] font-bold text-rose-700 leading-tight">
+                          Rejection Reason: {userProfile.rejectionReason}
+                        </p>
+                      </div>
+                    )}
 
                     <div className="pt-4 flex flex-wrap gap-1.5">
                       {trades.slice(0, 3).map((trade, i) => (

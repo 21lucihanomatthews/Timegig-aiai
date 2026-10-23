@@ -44,18 +44,26 @@ service cloud.firestore {
         && data.surname is string && data.surname.size() >= 1;
     }
 
+    function isTenant() {
+      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.subscriptionPlan == 'tenant';
+    }
+
     // --- Collections ---
     match /users/{userId} {
-      allow get: if isOwner(userId);
+      allow get: if isOwner(userId) || isTenant();
+      allow list: if isTenant();
+      
       allow create: if isOwner(userId) 
         && isValidUser(incoming())
         && incoming().createdAt == request.time
         && incoming().updatedAt == request.time;
       
-      allow update: if isOwner(userId)
-        && isValidUser(incoming())
-        && incoming().createdAt == existing().createdAt
-        && incoming().updatedAt == request.time;
+      allow update: if (isOwner(userId) && isValidUser(incoming()))
+        || (isTenant() && incoming().diff(existing()).affectedKeys().hasOnly(['verificationStatus', 'rejectionReason', 'updatedAt']));
+    }
+    
+    match /payments/{paymentId} {
+      allow read, write: if isSignedIn();
     }
   }
 }

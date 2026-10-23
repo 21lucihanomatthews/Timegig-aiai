@@ -21,6 +21,7 @@ import { SearchPanel } from './components/SearchPanel';
 import { BottomMenuBar } from './components/BottomMenuBar';
 import { ActivationModal } from './components/ActivationModal';
 import { ProfileModal } from './components/ProfileModal';
+import { TenantDashboard } from './components/TenantDashboard';
 import { AuthScreen } from './components/AuthScreen';
 import { auth } from './firebase';
 import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
@@ -68,8 +69,8 @@ export default function App() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
 
-  // Bottom menu bar state: 'activation' | 'profile' | null
-  const [activeBottomTab, setActiveBottomTab] = useState<'activation' | 'profile' | null>(null);
+  // Bottom menu bar state: 'activation' | 'profile' | 'tenant' | null
+  const [activeBottomTab, setActiveBottomTab] = useState<'activation' | 'profile' | 'tenant' | null>(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -104,7 +105,7 @@ export default function App() {
     setUserProfile(profile);
   };
 
-  const handleSelectBottomTab = (tab: 'activation' | 'profile') => {
+  const handleSelectBottomTab = (tab: 'activation' | 'profile' | 'tenant') => {
     setActiveBottomTab((prev) => (prev === tab ? null : tab));
   };
 
@@ -339,6 +340,7 @@ export default function App() {
       <BottomMenuBar
         activeTab={activeBottomTab}
         onSelectTab={handleSelectBottomTab}
+        userProfile={userProfile}
       />
 
       {/* 7. Activation Feature Modal */}
@@ -362,6 +364,13 @@ export default function App() {
           setUser(null);
           setUserProfile(null);
         }}
+      />
+
+      {/* 9. Tenant Dashboard Modal */}
+      <TenantDashboard
+        isOpen={activeBottomTab === 'tenant'}
+        onClose={() => setActiveBottomTab(null)}
+        currentUser={user}
       />
 
       {/* 9. Gig Application / Details Modal */}

@@ -45,13 +45,18 @@ export const ActivationModal: React.FC<ActivationModalProps> = ({
   userProfile,
   onProfileUpdated,
 }) => {
-  // Step: 'select' -> 'selfie' -> 'transfer' -> 'submitted'
-  const [step, setStep] = useState<'select' | 'selfie' | 'transfer' | 'submitted'>('select');
+  // Step: 'select' -> 'selfie' -> 'id-document' -> 'transfer' -> 'submitted'
+  const [step, setStep] = useState<'select' | 'selfie' | 'id-document' | 'transfer' | 'submitted'>('select');
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionType>('tenant');
 
   // Selfie / Face Image state
-  const [faceImage, setFaceImage] = useState<string | null>(userProfile?.profilePictureUrl || null);
+  const [faceImage, setFaceImage] = useState<string | null>(userProfile?.selfieUrl || userProfile?.profilePictureUrl || null);
+  
+  // ID Document state
+  const [idImage, setIdImage] = useState<string | null>(userProfile?.idDocumentUrl || null);
   const [isCameraOpen, setIsCameraOpen] = useState(false);
+  const [activeCapture, setActiveCapture] = useState<'selfie' | 'id'>('selfie');
+
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
@@ -59,6 +64,7 @@ export const ActivationModal: React.FC<ActivationModalProps> = ({
   // Proof of Payment state
   const [popFile, setPopFile] = useState<File | null>(null);
   const [popFileName, setPopFileName] = useState<string>('');
+  const [popImage, setPopImage] = useState<string | null>(null);
   const [fileSize, setFileSize] = useState<string>('');
   const [uploadError, setUploadError] = useState<string | null>(null);
 
@@ -103,7 +109,8 @@ export const ActivationModal: React.FC<ActivationModalProps> = ({
   };
 
   // --- Camera Logic ---
-  const startCamera = async () => {
+  const startCamera = async (mode: 'selfie' | 'id' = 'selfie') => {
+    setActiveCapture(mode);
     setCameraError(null);
     
     // 1. Check for secure context
@@ -122,7 +129,7 @@ export const ActivationModal: React.FC<ActivationModalProps> = ({
     try {
       const permissionsPolicy = (document as any).permissionsPolicy;
       if (permissionsPolicy && !permissionsPolicy.allowsFeature('camera')) {
-        setCameraError('Camera access is blocked by the preview environment (iframe). Please use "Upload Face Picture" or open the app directly in your browser.');
+        setCameraError('Camera access is blocked by the preview environment (iframe). Please use the upload option or open the app directly in your browser.');
         return;
       }
     } catch (e) {
@@ -135,7 +142,7 @@ export const ActivationModal: React.FC<ActivationModalProps> = ({
     try {
       const constraints = { 
         video: { 
-          facingMode: 'user',
+          facingMode: mode === 'selfie' ? 'user' : 'environment',
           width: { ideal: 1280 },
           height: { ideal: 720 }
         }, 
@@ -149,7 +156,7 @@ export const ActivationModal: React.FC<ActivationModalProps> = ({
         console.warn('First camera attempt failed, trying simpler constraints:', firstErr);
         // Fallback to minimal constraints for better mobile compatibility
         stream = await navigator.mediaDevices.getUserMedia({ 
-          video: { facingMode: 'user' }, 
+          video: { facingMode: mode === 'selfie' ? 'user' : 'environment' }, 
           audio: false 
         });
       }
@@ -170,7 +177,7 @@ export const ActivationModal: React.FC<ActivationModalProps> = ({
       if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
         // If we are in an iframe, this is very likely the cause
         if (window.self !== window.top) {
-          setCameraError('Camera access was denied. The preview environment (iframe) often blocks camera permissions. Please use "Upload Face Picture" or open the production link directly.');
+          setCameraError('Camera access was denied. The preview environment (iframe) often blocks camera permissions. Please use the upload option or open the production link directly.');
         } else {
           setCameraError('Camera access was denied. Please ensure you have granted camera permissions in your browser settings.');
         }
@@ -208,7 +215,11 @@ export const ActivationModal: React.FC<ActivationModalProps> = ({
       if (ctx) {
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
         const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
-        setFaceImage(dataUrl);
+        if (activeCapture === 'selfie') {
+          setFaceImage(dataUrl);
+        } else {
+          setIdImage(dataUrl);
+        }
         stopCamera();
       }
     }
@@ -224,11 +235,28 @@ export const ActivationModal: React.FC<ActivationModalProps> = ({
     reader.readAsDataURL(file);
   };
 
+  const handleIdUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setIdImage(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       setPopFile(file);
       setPopFileName(file.name);
+      
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPopImage(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+
       const sizeKb = Math.round(file.size / 1024);
       setFileSize(sizeKb > 1024 ? `${(sizeKb / 1024).toFixed(1)} MB` : `${sizeKb} KB`);
       setUploadError(null);
@@ -269,21 +297,31 @@ export const ActivationModal: React.FC<ActivationModalProps> = ({
           createdAt: new Date().toISOString(),
         });
 
-        // Update user profile with face image (as requested: use for profile logo)
+        // Update user profile with verification documents
+        const userDocRef = doc(db, 'users', currentUser.uid);
+        const updatedProfileData: Partial<UserProfile> = {
+          verificationStatus: 'pending',
+          updatedAt: new Date().toISOString(),
+        };
+
         if (faceImage) {
-          const userDocRef = doc(db, 'users', currentUser.uid);
-          const updatedProfileData = {
-            profilePictureUrl: faceImage,
-            updatedAt: new Date().toISOString(),
-          };
-          await setDoc(userDocRef, updatedProfileData, { merge: true });
-          
-          if (onProfileUpdated && userProfile) {
-            onProfileUpdated({
-              ...userProfile,
-              ...updatedProfileData,
-            });
-          }
+          updatedProfileData.profilePictureUrl = faceImage;
+          updatedProfileData.selfieUrl = faceImage;
+        }
+        if (idImage) {
+          updatedProfileData.idDocumentUrl = idImage;
+        }
+        if (popImage) {
+          updatedProfileData.proofOfPaymentUrl = popImage;
+        }
+
+        await setDoc(userDocRef, updatedProfileData, { merge: true });
+        
+        if (onProfileUpdated && userProfile) {
+          onProfileUpdated({
+            ...userProfile,
+            ...updatedProfileData,
+          } as UserProfile);
         }
       }
     } catch (saveErr) {
@@ -302,6 +340,7 @@ export const ActivationModal: React.FC<ActivationModalProps> = ({
     setStep('select');
     setPopFile(null);
     setPopFileName('');
+    setPopImage(null);
     setIsLoading(false);
     onClose();
     if (wasSubmitted && onActivationComplete) {
@@ -328,7 +367,15 @@ export const ActivationModal: React.FC<ActivationModalProps> = ({
                 if (step === 'select') {
                   handleResetAndClose();
                 } else {
-                  setStep(step === 'transfer' ? 'selfie' : 'select');
+                  if (step === 'submitted') {
+                    handleResetAndClose();
+                  } else if (step === 'transfer') {
+                    setStep('id-document');
+                  } else if (step === 'id-document') {
+                    setStep('selfie');
+                  } else {
+                    setStep('select');
+                  }
                 }
               }}
               className="p-2 -ml-2 text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 rounded-full transition-colors"
@@ -342,14 +389,16 @@ export const ActivationModal: React.FC<ActivationModalProps> = ({
             <h2 className="text-base font-bold text-neutral-900 leading-tight">
               {step === 'select' && 'Account Activation'}
               {step === 'selfie' && 'Face Verification'}
+              {step === 'id-document' && 'ID Document'}
               {step === 'transfer' && 'Bank Transfer Payment'}
               {step === 'submitted' && 'Activation Submitted'}
             </h2>
             <p className="text-xs text-neutral-500">
               {step === 'select' && 'Choose your monthly subscription option'}
               {step === 'selfie' && 'Capture or upload your profile face picture'}
+              {step === 'id-document' && 'Capture or upload your ID Document'}
               {step === 'transfer' && 'Pay via Capitec Bank Transfer & Upload Proof'}
-              {step === 'submitted' && 'Your proof of payment has been received'}
+              {step === 'submitted' && 'Your documents are being reviewed'}
             </p>
           </div>
         </div>
@@ -473,7 +522,7 @@ export const ActivationModal: React.FC<ActivationModalProps> = ({
             <div className="space-y-6 my-auto py-4 w-full">
               <div className="text-center mb-6">
                 <span className="text-[11px] font-bold tracking-wider uppercase text-sky-700 bg-sky-100/70 px-3 py-1 rounded-full">
-                  Step 2 of 3 · Face Identification
+                  Step 2 of 4 · Face Identification
                 </span>
                 <h3 className="text-xl font-black text-neutral-900 mt-2.5">
                   Your Profile Picture
@@ -498,7 +547,7 @@ export const ActivationModal: React.FC<ActivationModalProps> = ({
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
                       <button
                         type="button"
-                        onClick={startCamera}
+                        onClick={() => startCamera('selfie')}
                         className="p-3 bg-white rounded-full text-neutral-900 hover:bg-sky-50 transition-colors shadow-lg"
                         title="Take Selfie"
                       >
@@ -527,7 +576,7 @@ export const ActivationModal: React.FC<ActivationModalProps> = ({
                   <div className="flex flex-col gap-3 w-full">
                     <button
                       type="button"
-                      onClick={startCamera}
+                      onClick={() => startCamera('selfie')}
                       className="w-full py-3 bg-sky-600 text-white rounded-xl font-bold flex items-center justify-center gap-2 shadow-md"
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -547,6 +596,104 @@ export const ActivationModal: React.FC<ActivationModalProps> = ({
                 )}
 
                 {faceImage && (
+                  <button
+                    type="button"
+                    onClick={() => setStep('id-document')}
+                    className="w-full py-3.5 bg-sky-600 text-white rounded-2xl font-black shadow-xl hover:bg-sky-500 transition-all flex items-center justify-center gap-2"
+                  >
+                    Continue to ID Document
+                    <ArrowLeft className="w-5 h-5 rotate-180" />
+                  </button>
+                )}
+              </div>
+
+              {cameraError && (
+                <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-600 text-[11px] font-bold text-center">
+                  {cameraError}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ================= STEP 2.5: ID DOCUMENT ================= */}
+          {step === 'id-document' && (
+            <div className="space-y-6 my-auto py-4 w-full">
+              <div className="text-center mb-6">
+                <span className="text-[11px] font-bold tracking-wider uppercase text-sky-700 bg-sky-100/70 px-3 py-1 rounded-full">
+                  Step 3 of 4 · Identity Document
+                </span>
+                <h3 className="text-xl font-black text-neutral-900 mt-2.5">
+                  Upload ID or Passport
+                </h3>
+                <p className="text-xs text-neutral-500 mt-1">
+                  Please capture a photo of your ID or upload a clear copy.
+                </p>
+              </div>
+
+              <div className="flex flex-col items-center gap-6 bg-white p-8 rounded-3xl border border-neutral-100 shadow-xs">
+                <div className="relative w-full aspect-[1.6/1]">
+                  <div className={`w-full h-full rounded-2xl overflow-hidden bg-neutral-100 border-4 ${!idImage ? 'border-rose-200' : 'border-white'} shadow-xl flex items-center justify-center group relative`}>
+                    {idImage ? (
+                      <img src={idImage} alt="ID Preview" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="flex flex-col items-center text-neutral-300">
+                        <FileText className="w-16 h-16" />
+                        <span className="text-[10px] font-bold uppercase mt-2">No ID Image</span>
+                      </div>
+                    )}
+                    
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
+                      <button
+                        type="button"
+                        onClick={() => startCamera('id')}
+                        className="p-3 bg-white rounded-full text-neutral-900 hover:bg-sky-50 transition-colors shadow-lg"
+                        title="Take Photo"
+                      >
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                      </button>
+                      <label className="p-3 bg-white rounded-full text-neutral-900 hover:bg-sky-50 transition-colors cursor-pointer shadow-lg" title="Upload Image">
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                        </svg>
+                        <input type="file" className="hidden" accept="image/*" onChange={handleIdUpload} />
+                      </label>
+                    </div>
+                  </div>
+                  
+                  {idImage && (
+                    <div className="absolute -bottom-2 -right-2 w-10 h-10 rounded-full bg-emerald-500 border-4 border-white flex items-center justify-center shadow-lg z-10">
+                      <Check className="w-5 h-5 text-white stroke-[3]" />
+                    </div>
+                  )}
+                </div>
+
+                {!idImage && (
+                  <div className="flex flex-col gap-3 w-full">
+                    <button
+                      type="button"
+                      onClick={() => startCamera('id')}
+                      className="w-full py-3 bg-sky-600 text-white rounded-xl font-bold flex items-center justify-center gap-2 shadow-md"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      Capture ID Document
+                    </button>
+                    <label className="w-full py-3 bg-neutral-100 text-neutral-700 rounded-xl font-bold flex items-center justify-center gap-2 cursor-pointer border border-neutral-200">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                      </svg>
+                      Upload ID Document
+                      <input type="file" className="hidden" accept="image/*" onChange={handleIdUpload} />
+                    </label>
+                  </div>
+                )}
+
+                {idImage && (
                   <button
                     type="button"
                     onClick={() => setStep('transfer')}
@@ -571,7 +718,7 @@ export const ActivationModal: React.FC<ActivationModalProps> = ({
             <div className="space-y-5 py-2 w-full">
               <div className="text-center mb-2">
                 <span className="text-[11px] font-bold tracking-wider uppercase text-sky-700 bg-sky-100/70 px-3 py-1 rounded-full">
-                  Step 3 of 3 · Finalize Payment
+                  Step 4 of 4 · Finalize Payment
                 </span>
               </div>
               {/* Selected Plan & Face Identity Highlight */}

@@ -250,7 +250,11 @@ export interface UserProfile {
   };
   socialLinks?: { platform: string; url: string }[];
   profilePictureUrl?: string;
+  selfieUrl?: string;
   idDocumentUrl?: string;
+  proofOfPaymentUrl?: string;
+  verificationStatus?: 'none' | 'pending' | 'approved' | 'rejected';
+  rejectionReason?: string;
   trades?: string[];
   experience?: WorkExperience[];
   references?: WorkReference[];
